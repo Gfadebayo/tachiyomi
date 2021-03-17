@@ -6,11 +6,12 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.util.TypedValue
-import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ContextThemeWrapper
+import androidx.core.view.updatePadding
 import androidx.preference.PreferenceController
 import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceScreen
@@ -19,10 +20,9 @@ import com.bluelinelabs.conductor.ControllerChangeType
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.preference.PreferencesHelper
 import eu.kanade.tachiyomi.ui.base.controller.BaseController
+import eu.kanade.tachiyomi.ui.base.controller.RootController
 import eu.kanade.tachiyomi.util.system.getResourceColor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
 import rx.Observable
 import rx.Subscription
 import rx.subscriptions.CompositeSubscription
@@ -33,7 +33,7 @@ abstract class SettingsController : PreferenceController() {
 
     var preferenceKey: String? = null
     val preferences: PreferencesHelper = Injekt.get()
-    val scope = CoroutineScope(Job() + Dispatchers.Main)
+    val viewScope = MainScope()
 
     var untilDestroySubscriptions = CompositeSubscription()
         private set
@@ -42,7 +42,14 @@ abstract class SettingsController : PreferenceController() {
         if (untilDestroySubscriptions.isUnsubscribed) {
             untilDestroySubscriptions = CompositeSubscription()
         }
-        return super.onCreateView(inflater, container, savedInstanceState)
+
+        val view = super.onCreateView(inflater, container, savedInstanceState)
+
+        if (this is RootController) {
+            view.updatePadding(bottom = view.context.resources.getDimensionPixelSize(R.dimen.action_toolbar_list_padding))
+        }
+
+        return view
     }
 
     override fun onAttach(view: View) {

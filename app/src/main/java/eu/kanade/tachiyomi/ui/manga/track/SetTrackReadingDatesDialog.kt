@@ -15,31 +15,32 @@ import uy.kohesive.injekt.api.get
 import java.util.Calendar
 
 class SetTrackReadingDatesDialog<T> : DialogController
-        where T : Controller, T : SetTrackReadingDatesDialog.Listener {
+        where T : Controller {
 
     private val item: TrackItem
 
     private val dateToUpdate: ReadingDate
 
-    constructor(target: T, dateToUpdate: ReadingDate, item: TrackItem) : super(
+    private lateinit var listener: Listener
+
+    constructor(target: T, listener: Listener, dateToUpdate: ReadingDate, item: TrackItem) : super(
         bundleOf(KEY_ITEM_TRACK to item.track)
     ) {
         targetController = target
+        this.listener = listener
         this.item = item
         this.dateToUpdate = dateToUpdate
     }
 
     @Suppress("unused")
     constructor(bundle: Bundle) : super(bundle) {
-        val track = bundle.getSerializable(SetTrackReadingDatesDialog.KEY_ITEM_TRACK) as Track
+        val track = bundle.getSerializable(KEY_ITEM_TRACK) as Track
         val service = Injekt.get<TrackManager>().getService(track.sync_id)!!
         item = TrackItem(track, service)
         dateToUpdate = ReadingDate.Start
     }
 
     override fun onCreateDialog(savedViewState: Bundle?): Dialog {
-        val listener = (targetController as? Listener)
-
         return MaterialDialog(activity!!)
             .title(
                 when (dateToUpdate) {

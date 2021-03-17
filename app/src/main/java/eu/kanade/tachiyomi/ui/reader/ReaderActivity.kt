@@ -3,10 +3,9 @@ package eu.kanade.tachiyomi.ui.reader
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.ProgressDialog
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ActivityInfo
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Build
@@ -20,10 +19,12 @@ import android.view.WindowManager
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.setPadding
+import androidx.lifecycle.lifecycleScope
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.material.snackbar.Snackbar
 import eu.kanade.tachiyomi.R
@@ -35,12 +36,18 @@ import eu.kanade.tachiyomi.data.preference.PreferencesHelper
 import eu.kanade.tachiyomi.data.preference.asImmediateFlow
 import eu.kanade.tachiyomi.databinding.ReaderActivityBinding
 import eu.kanade.tachiyomi.ui.base.activity.BaseRxActivity
+import eu.kanade.tachiyomi.ui.main.MainActivity
+import eu.kanade.tachiyomi.ui.manga.MangaController
 import eu.kanade.tachiyomi.ui.reader.ReaderPresenter.SetAsCoverResult.AddToLibraryFirst
 import eu.kanade.tachiyomi.ui.reader.ReaderPresenter.SetAsCoverResult.Error
 import eu.kanade.tachiyomi.ui.reader.ReaderPresenter.SetAsCoverResult.Success
 import eu.kanade.tachiyomi.ui.reader.model.ReaderChapter
 import eu.kanade.tachiyomi.ui.reader.model.ReaderPage
 import eu.kanade.tachiyomi.ui.reader.model.ViewerChapters
+import eu.kanade.tachiyomi.ui.reader.setting.OrientationType
+import eu.kanade.tachiyomi.ui.reader.setting.ReaderColorFilterSheet
+import eu.kanade.tachiyomi.ui.reader.setting.ReaderSettingsSheet
+import eu.kanade.tachiyomi.ui.reader.setting.ReadingModeType
 import eu.kanade.tachiyomi.ui.reader.viewer.BaseViewer
 import eu.kanade.tachiyomi.ui.reader.viewer.pager.L2RPagerViewer
 import eu.kanade.tachiyomi.ui.reader.viewer.pager.R2LPagerViewer
@@ -57,7 +64,6 @@ import eu.kanade.tachiyomi.util.view.showBar
 import eu.kanade.tachiyomi.util.view.snack
 import eu.kanade.tachiyomi.widget.SimpleAnimationListener
 import eu.kanade.tachiyomi.widget.SimpleSeekBarListener
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
@@ -76,7 +82,17 @@ import kotlin.math.abs
 @RequiresPresenter(ReaderPresenter::class)
 class ReaderActivity : BaseRxActivity<ReaderActivityBinding, ReaderPresenter>() {
 
-    private val preferences by injectLazy<PreferencesHelper>()
+    companion object {
+        fun newIntent(context: Context, manga: Manga, chapter: Chapter): Intent {
+            return Intent(context, ReaderActivity::class.java).apply {
+                putExtra("manga", manga.id)
+                putExtra("chapter", chapter.id)
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
+        }
+    }
+
+    private val preferences: PreferencesHelper by injectLazy()
 
     /**
      * The maximum bitmap size supported by the device.
@@ -108,22 +124,7 @@ class ReaderActivity : BaseRxActivity<ReaderActivityBinding, ReaderPresenter>() 
     @Suppress("DEPRECATION")
     private var progressDialog: ProgressDialog? = null
 
-    companion object {
-        @Suppress("unused")
-        const val LEFT_TO_RIGHT = 1
-        const val RIGHT_TO_LEFT = 2
-        const val VERTICAL = 3
-        const val WEBTOON = 4
-        const val VERTICAL_PLUS = 5
-
-        fun newIntent(context: Context, manga: Manga, chapter: Chapter): Intent {
-            return Intent(context, ReaderActivity::class.java).apply {
-                putExtra("manga", manga.id)
-                putExtra("chapter", chapter.id)
-                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            }
-        }
-    }
+    private var menuToggleToast: Toast? = null
 
     /**
      * Called when the activity is created. Initializes the presenter and configuration.
@@ -236,18 +237,6 @@ class ReaderActivity : BaseRxActivity<ReaderActivityBinding, ReaderPresenter>() 
                 presenter.bookmarkCurrentChapter(false)
                 invalidateOptionsMenu()
             }
-            R.id.action_settings -> ReaderSettingsSheet(this).show()
-            R.id.action_custom_filter -> {
-                val sheet = ReaderColorFilterSheet(this)
-                    // Remove dimmed backdrop so changes can be previewed
-                    .apply { window?.setDimAmount(0f) }
-
-                // Hide toolbars while sheet is open for better preview
-                sheet.setOnDismissListener { setMenuVisibility(true) }
-                setMenuVisibility(false)
-
-                sheet.show()
-            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -259,6 +248,17 @@ class ReaderActivity : BaseRxActivity<ReaderActivityBinding, ReaderPresenter>() 
     override fun onBackPressed() {
         presenter.onBackPressed()
         super.onBackPressed()
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_N) {
+            presenter.loadNextChapter()
+            return true
+        } else if (keyCode == KeyEvent.KEYCODE_P) {
+            presenter.loadPreviousChapter()
+            return true
+        }
+        return super.onKeyUp(keyCode, event)
     }
 
     /**
@@ -282,7 +282,6 @@ class ReaderActivity : BaseRxActivity<ReaderActivityBinding, ReaderPresenter>() 
      * Initializes the reader menu. It sets up click listeners and the initial visibility.
      */
     private fun initializeMenu() {
-        // Set toolbar
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener {
@@ -300,6 +299,18 @@ class ReaderActivity : BaseRxActivity<ReaderActivityBinding, ReaderPresenter>() 
                 )
             }
             insets
+        }
+
+        binding.toolbar.setOnClickListener {
+            presenter.manga?.id?.let { id ->
+                startActivity(
+                    Intent(this, MainActivity::class.java).apply {
+                        action = MainActivity.SHORTCUT_MANGA
+                        putExtra(MangaController.MANGA_EXTRA, id)
+                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    }
+                )
+            }
         }
 
         // Init listeners on bottom menu
@@ -331,8 +342,51 @@ class ReaderActivity : BaseRxActivity<ReaderActivityBinding, ReaderPresenter>() 
             }
         }
 
+        binding.actionReaderMode.setOnClickListener {
+            val newReadingMode = ReadingModeType.getNextReadingMode(presenter.getMangaViewer(resolveDefault = false))
+            presenter.setMangaViewer(newReadingMode.prefValue)
+
+            menuToggleToast?.cancel()
+            menuToggleToast = toast(newReadingMode.stringRes)
+        }
+
+        binding.actionRotation.setOnClickListener {
+            val newOrientation = OrientationType.getNextOrientation(preferences.rotation().get(), resources)
+
+            preferences.rotation().set(newOrientation.prefValue)
+            setOrientation(newOrientation.flag)
+
+            menuToggleToast?.cancel()
+            menuToggleToast = toast(newOrientation.stringRes)
+        }
+        preferences.rotation().asImmediateFlow { updateRotationShortcut(it) }
+            .onEach {
+                updateRotationShortcut(it)
+            }
+            .launchIn(lifecycleScope)
+
+        binding.actionCustomFilter.setOnClickListener {
+            val sheet = ReaderColorFilterSheet(this)
+                // Remove dimmed backdrop so changes can be previewed
+                .apply { window?.setDimAmount(0f) }
+
+            // Hide toolbars while sheet is open for better preview
+            sheet.setOnDismissListener { setMenuVisibility(true) }
+            setMenuVisibility(false)
+
+            sheet.show()
+        }
+        binding.actionSettings.setOnClickListener {
+            ReaderSettingsSheet(this).show()
+        }
+
         // Set initial visibility
         setMenuVisibility(menuVisible)
+    }
+
+    private fun updateRotationShortcut(preference: Int) {
+        val orientation = OrientationType.fromPreference(preference, resources)
+        binding.actionRotation.setImageResource(orientation.iconRes)
     }
 
     /**
@@ -354,7 +408,7 @@ class ReaderActivity : BaseRxActivity<ReaderActivityBinding, ReaderPresenter>() 
                 toolbarAnimation.setAnimationListener(
                     object : SimpleAnimationListener() {
                         override fun onAnimationStart(animation: Animation) {
-// Fix status bar being translucent the first time it's opened.
+                            // Fix status bar being translucent the first time it's opened.
                             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
                         }
                     }
@@ -410,12 +464,16 @@ class ReaderActivity : BaseRxActivity<ReaderActivityBinding, ReaderPresenter>() 
      */
     fun setManga(manga: Manga) {
         val prevViewer = viewer
+
+        val viewerMode = ReadingModeType.fromPreference(presenter.getMangaViewer(resolveDefault = false))
+        binding.actionReaderMode.setImageResource(viewerMode.iconRes)
+
         val newViewer = when (presenter.getMangaViewer()) {
-            RIGHT_TO_LEFT -> R2LPagerViewer(this)
-            VERTICAL -> VerticalPagerViewer(this)
-            WEBTOON -> WebtoonViewer(this)
-            VERTICAL_PLUS -> WebtoonViewer(this, isContinuous = false)
-            else -> L2RPagerViewer(this)
+            ReadingModeType.LEFT_TO_RIGHT.prefValue -> L2RPagerViewer(this)
+            ReadingModeType.VERTICAL.prefValue -> VerticalPagerViewer(this)
+            ReadingModeType.WEBTOON.prefValue -> WebtoonViewer(this)
+            ReadingModeType.CONTINUOUS_VERTICAL.prefValue -> WebtoonViewer(this, isContinuous = false)
+            else -> R2LPagerViewer(this)
         }
 
         // Destroy previous viewer if there was one
@@ -584,10 +642,11 @@ class ReaderActivity : BaseRxActivity<ReaderActivityBinding, ReaderPresenter>() 
         val manga = presenter.manga ?: return
         val chapter = page.chapter.chapter
 
-        val stream = file.getUriCompat(this)
+        val uri = file.getUriCompat(this)
         val intent = Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_TEXT, getString(R.string.share_page_info, manga.title, chapter.name, page.number))
-            putExtra(Intent.EXTRA_STREAM, stream)
+            putExtra(Intent.EXTRA_STREAM, uri)
+            clipData = ClipData.newRawUri(null, uri)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
             type = "image/*"
         }
@@ -640,9 +699,18 @@ class ReaderActivity : BaseRxActivity<ReaderActivityBinding, ReaderPresenter>() 
     }
 
     /**
+     * Forces the user preferred [orientation] on the activity.
+     */
+    private fun setOrientation(orientation: Int) {
+        val newOrientation = OrientationType.fromPreference(orientation, resources)
+        if (newOrientation.flag != requestedOrientation) {
+            requestedOrientation = newOrientation.flag
+        }
+    }
+
+    /**
      * Class that handles the user preferences of the reader.
      */
-    @FlowPreview
     private inner class ReaderConfig {
 
         /**
@@ -655,69 +723,42 @@ class ReaderActivity : BaseRxActivity<ReaderActivityBinding, ReaderPresenter>() 
                     delay(250)
                     setOrientation(it)
                 }
-                .launchIn(scope)
+                .launchIn(lifecycleScope)
 
             preferences.readerTheme().asFlow()
                 .drop(1) // We only care about updates
                 .onEach { recreate() }
-                .launchIn(scope)
+                .launchIn(lifecycleScope)
 
             preferences.showPageNumber().asFlow()
                 .onEach { setPageNumberVisibility(it) }
-                .launchIn(scope)
+                .launchIn(lifecycleScope)
 
             preferences.trueColor().asFlow()
                 .onEach { setTrueColor(it) }
-                .launchIn(scope)
+                .launchIn(lifecycleScope)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 preferences.cutoutShort().asFlow()
                     .onEach { setCutoutShort(it) }
-                    .launchIn(scope)
+                    .launchIn(lifecycleScope)
             }
 
             preferences.keepScreenOn().asFlow()
                 .onEach { setKeepScreenOn(it) }
-                .launchIn(scope)
+                .launchIn(lifecycleScope)
 
             preferences.customBrightness().asFlow()
                 .onEach { setCustomBrightness(it) }
-                .launchIn(scope)
+                .launchIn(lifecycleScope)
 
             preferences.colorFilter().asFlow()
                 .onEach { setColorFilter(it) }
-                .launchIn(scope)
+                .launchIn(lifecycleScope)
 
             preferences.colorFilterMode().asFlow()
                 .onEach { setColorFilter(preferences.colorFilter().get()) }
-                .launchIn(scope)
-        }
-
-        /**
-         * Forces the user preferred [orientation] on the activity.
-         */
-        private fun setOrientation(orientation: Int) {
-            val newOrientation = when (orientation) {
-                // Lock in current orientation
-                2 -> {
-                    val currentOrientation = resources.configuration.orientation
-                    if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-                        ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
-                    } else {
-                        ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-                    }
-                }
-                // Lock in portrait
-                3 -> ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
-                // Lock in landscape
-                4 -> ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-                // Rotation free
-                else -> ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-            }
-
-            if (newOrientation != requestedOrientation) {
-                requestedOrientation = newOrientation
-            }
+                .launchIn(lifecycleScope)
         }
 
         /**
@@ -763,13 +804,12 @@ class ReaderActivity : BaseRxActivity<ReaderActivityBinding, ReaderPresenter>() 
         /**
          * Sets the custom brightness overlay according to [enabled].
          */
-        @FlowPreview
         private fun setCustomBrightness(enabled: Boolean) {
             if (enabled) {
                 preferences.customBrightnessValue().asFlow()
                     .sample(100)
                     .onEach { setCustomBrightnessValue(it) }
-                    .launchIn(scope)
+                    .launchIn(lifecycleScope)
             } else {
                 setCustomBrightnessValue(0)
             }
@@ -778,13 +818,12 @@ class ReaderActivity : BaseRxActivity<ReaderActivityBinding, ReaderPresenter>() 
         /**
          * Sets the color filter overlay according to [enabled].
          */
-        @FlowPreview
         private fun setColorFilter(enabled: Boolean) {
             if (enabled) {
                 preferences.colorFilterValue().asFlow()
                     .sample(100)
                     .onEach { setColorFilterValue(it) }
-                    .launchIn(scope)
+                    .launchIn(lifecycleScope)
             } else {
                 binding.colorOverlay.isVisible = false
             }

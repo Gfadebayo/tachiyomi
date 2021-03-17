@@ -31,16 +31,10 @@ object PreferenceValues {
         LIST,
     }
 
-    enum class TappingInvertMode {
+    enum class TappingInvertMode(val shouldInvertHorizontal: Boolean = false, val shouldInvertVertical: Boolean = false) {
         NONE,
-        HORIZONTAL,
-        VERTICAL,
-        BOTH
-    }
-
-    enum class NsfwAllowance {
-        ALLOWED,
-        PARTIAL,
-        BLOCKED
+        HORIZONTAL(shouldInvertHorizontal = true),
+        VERTICAL(shouldInvertVertical = true),
+        BOTH(shouldInvertHorizontal = true, shouldInvertVertical = true)
     }
 }

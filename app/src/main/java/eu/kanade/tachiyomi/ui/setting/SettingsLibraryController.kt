@@ -27,8 +27,7 @@ import eu.kanade.tachiyomi.util.preference.preferenceCategory
 import eu.kanade.tachiyomi.util.preference.summaryRes
 import eu.kanade.tachiyomi.util.preference.switchPreference
 import eu.kanade.tachiyomi.util.preference.titleRes
-import kotlinx.android.synthetic.main.pref_library_columns.view.landscape_columns
-import kotlinx.android.synthetic.main.pref_library_columns.view.portrait_columns
+import eu.kanade.tachiyomi.widget.MinMaxNumberPicker
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -71,7 +70,7 @@ class SettingsLibraryController : SettingsController() {
                         summary = "${context.getString(R.string.portrait)}: $portrait, " +
                             "${context.getString(R.string.landscape)}: $landscape"
                     }
-                    .launchIn(scope)
+                    .launchIn(viewScope)
             }
             switchPreference {
                 key = Keys.jumpToChapters
@@ -127,12 +126,15 @@ class SettingsLibraryController : SettingsController() {
                     R.string.update_1hour,
                     R.string.update_2hour,
                     R.string.update_3hour,
+                    R.string.update_4hour,
                     R.string.update_6hour,
+                    R.string.update_8hour,
                     R.string.update_12hour,
                     R.string.update_24hour,
-                    R.string.update_48hour
+                    R.string.update_48hour,
+                    R.string.update_weekly
                 )
-                entryValues = arrayOf("0", "1", "2", "3", "6", "12", "24", "48")
+                entryValues = arrayOf("0", "1", "2", "3", "4", "6", "8", "12", "24", "48", "168")
                 defaultValue = "24"
                 summary = "%s"
 
@@ -145,13 +147,13 @@ class SettingsLibraryController : SettingsController() {
             multiSelectListPreference {
                 key = Keys.libraryUpdateRestriction
                 titleRes = R.string.pref_library_update_restriction
-                entriesRes = arrayOf(R.string.wifi, R.string.charging)
+                entriesRes = arrayOf(R.string.network_unmetered, R.string.charging)
                 entryValues = arrayOf("wifi", "ac")
                 summaryRes = R.string.pref_library_update_restriction_summary
                 defaultValue = setOf("wifi")
 
                 preferences.libraryUpdateInterval().asImmediateFlow { isVisible = it > 0 }
-                    .launchIn(scope)
+                    .launchIn(viewScope)
 
                 onChange {
                     // Post to event looper to allow the preference to be updated.
@@ -181,7 +183,7 @@ class SettingsLibraryController : SettingsController() {
                             selectedCategories.joinToString { it.name }
                         }
                     }
-                    .launchIn(scope)
+                    .launchIn(viewScope)
             }
             intListPreference {
                 key = Keys.libraryUpdatePrioritization
@@ -244,7 +246,7 @@ class SettingsLibraryController : SettingsController() {
         }
 
         fun onViewCreated(view: View) {
-            with(view.portrait_columns) {
+            with(view.findViewById(R.id.portrait_columns) as MinMaxNumberPicker) {
                 displayedValues = arrayOf(context.getString(R.string.default_columns)) +
                     IntRange(1, 10).map(Int::toString)
                 value = portrait
@@ -253,7 +255,7 @@ class SettingsLibraryController : SettingsController() {
                     portrait = newValue
                 }
             }
-            with(view.landscape_columns) {
+            with(view.findViewById(R.id.landscape_columns) as MinMaxNumberPicker) {
                 displayedValues = arrayOf(context.getString(R.string.default_columns)) +
                     IntRange(1, 10).map(Int::toString)
                 value = landscape

@@ -67,15 +67,6 @@ internal class DownloadNotifier(private val context: Context) {
     }
 
     /**
-     * Clear old actions if they exist.
-     */
-    private fun NotificationCompat.Builder.clearActions() {
-        if (mActions.isNotEmpty()) {
-            mActions.clear()
-        }
-    }
-
-    /**
      * Dismiss the downloader's notification. Downloader error notifications use a different id, so
      * those can only be dismissed by the user.
      */
@@ -165,6 +156,8 @@ internal class DownloadNotifier(private val context: Context) {
      *  This function shows a notification to inform download tasks are done.
      */
     fun onComplete() {
+        dismissProgress()
+
         if (!errorThrown) {
             // Create notification
             with(completeNotificationBuilder) {

@@ -27,7 +27,8 @@ import eu.kanade.tachiyomi.util.lang.takeBytes
 import eu.kanade.tachiyomi.util.storage.DiskUtil
 import eu.kanade.tachiyomi.util.system.ImageUtil
 import eu.kanade.tachiyomi.util.updateCoverLastModified
-import rx.Completable
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import rx.Observable
 import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
@@ -133,6 +134,13 @@ class ReaderPresenter(
         }.map(::ReaderChapter)
     }
 
+    private var hasTrackers: Boolean = false
+    private val checkTrackers: (Manga) -> Unit = { manga ->
+        val tracks = db.getTracks(manga).executeAsBlocking()
+
+        hasTrackers = tracks.size > 0
+    }
+
     /**
      * Called when the presenter is created. It retrieves the saved active chapter if the process
      * was restored.
@@ -223,6 +231,8 @@ class ReaderPresenter(
 
         this.manga = manga
         if (chapterId == -1L) chapterId = initialChapterId
+
+        checkTrackers(manga)
 
         val context = Injekt.get<Application>()
         val source = sourceManager.getOrStub(manga.source)
@@ -357,7 +367,8 @@ class ReaderPresenter(
 
         // Save last page read and mark as read if needed
         selectedChapter.chapter.last_page_read = page.index
-        if (selectedChapter.pages?.lastIndex == page.index) {
+        val shouldTrack = !preferences.incognitoMode().get() || hasTrackers
+        if (selectedChapter.pages?.lastIndex == page.index && shouldTrack) {
             selectedChapter.chapter.read = true
             updateTrackChapterRead(selectedChapter)
             deleteChapterIfNeeded(selectedChapter)
@@ -408,16 +419,19 @@ class ReaderPresenter(
 
     /**
      * Saves this [chapter] progress (last read page and whether it's read).
+     * If incognito mode isn't on or has at least 1 tracker
      */
     private fun saveChapterProgress(chapter: ReaderChapter) {
-        db.updateChapterProgress(chapter.chapter).asRxCompletable()
-            .onErrorComplete()
-            .subscribeOn(Schedulers.io())
-            .subscribe()
+        if (!preferences.incognitoMode().get() || hasTrackers) {
+            db.updateChapterProgress(chapter.chapter).asRxCompletable()
+                .onErrorComplete()
+                .subscribeOn(Schedulers.io())
+                .subscribe()
+        }
     }
 
     /**
-     * Saves this [chapter] last read history.
+     * Saves this [chapter] last read history if incognito mode isn't on.
      */
     private fun saveChapterHistory(chapter: ReaderChapter) {
         if (!preferences.incognitoMode().get()) {
@@ -475,9 +489,9 @@ class ReaderPresenter(
     /**
      * Returns the viewer position used by this manga or the default one.
      */
-    fun getMangaViewer(): Int {
+    fun getMangaViewer(resolveDefault: Boolean = true): Int {
         val manga = manga ?: return preferences.defaultViewer()
-        return if (manga.viewer == 0) preferences.defaultViewer() else manga.viewer
+        return if (resolveDefault && manga.viewer == 0) preferences.defaultViewer() else manga.viewer
     }
 
     /**
@@ -648,29 +662,29 @@ class ReaderPresenter(
 
         val trackManager = Injekt.get<TrackManager>()
 
-        db.getTracks(manga).asRxSingle()
-            .flatMapCompletable { trackList ->
-                Completable.concat(
-                    trackList.map { track ->
-                        val service = trackManager.getService(track.sync_id)
-                        if (service != null && service.isLogged && chapterRead > track.last_chapter_read) {
-                            track.last_chapter_read = chapterRead
+        launchIO {
+            db.getTracks(manga).executeAsBlocking()
+                .mapNotNull { track ->
+                    val service = trackManager.getService(track.sync_id)
+                    if (service != null && service.isLogged && chapterRead > track.last_chapter_read) {
+                        track.last_chapter_read = chapterRead
 
-                            // We wan't these to execute even if the presenter is destroyed and leaks
-                            // for a while. The view can still be garbage collected.
-                            Observable.defer { service.update(track) }
-                                .map { db.insertTrack(track).executeAsBlocking() }
-                                .toCompletable()
-                                .onErrorComplete()
-                        } else {
-                            Completable.complete()
+                        // We want these to execute even if the presenter is destroyed and leaks
+                        // for a while. The view can still be garbage collected.
+                        async {
+                            runCatching {
+                                service.update(track)
+                                db.insertTrack(track).executeAsBlocking()
+                            }
                         }
+                    } else {
+                        null
                     }
-                )
-            }
-            .onErrorComplete()
-            .subscribeOn(Schedulers.io())
-            .subscribe()
+                }
+                .awaitAll()
+                .mapNotNull { it.exceptionOrNull() }
+                .forEach { Timber.w(it) }
+        }
     }
 
     /**

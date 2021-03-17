@@ -116,7 +116,7 @@ class SettingsGeneralController : SettingsController() {
                 summary = "%s"
 
                 preferences.themeMode().asImmediateFlow { isVisible = it != Values.ThemeMode.dark }
-                    .launchIn(scope)
+                    .launchIn(viewScope)
 
                 onChange {
                     if (preferences.themeMode().get() != Values.ThemeMode.dark) {
@@ -142,7 +142,7 @@ class SettingsGeneralController : SettingsController() {
                 summary = "%s"
 
                 preferences.themeMode().asImmediateFlow { isVisible = it != Values.ThemeMode.light }
-                    .launchIn(scope)
+                    .launchIn(viewScope)
 
                 onChange {
                     if (preferences.themeMode().get() != Values.ThemeMode.light) {
@@ -178,6 +178,7 @@ class SettingsGeneralController : SettingsController() {
                     "cv",
                     "de",
                     "el",
+                    "eo",
                     "es",
                     "es-419",
                     "en-US",
@@ -186,6 +187,7 @@ class SettingsGeneralController : SettingsController() {
                     "fi",
                     "fil",
                     "fr",
+                    "gl",
                     "he",
                     "hi",
                     "hr",
@@ -199,6 +201,7 @@ class SettingsGeneralController : SettingsController() {
                     "lv",
                     "mr",
                     "ms",
+                    "my",
                     "nb-rNO",
                     "nl",
                     "pl",
@@ -211,11 +214,13 @@ class SettingsGeneralController : SettingsController() {
                     "sk",
                     "sr",
                     "sv",
+                    "te",
                     "th",
                     "tr",
                     "uk",
                     "ur-rPK",
                     "vi",
+                    "uz",
                     "zh-rCN",
                     "zh-rTW"
                 )
@@ -241,7 +246,7 @@ class SettingsGeneralController : SettingsController() {
             listPreference {
                 key = Keys.dateFormat
                 titleRes = R.string.pref_date_format
-                entryValues = arrayOf("", "MM/dd/yy", "dd/MM/yy", "yyyy-MM-dd")
+                entryValues = arrayOf("", "MM/dd/yy", "dd/MM/yy", "yyyy-MM-dd", "dd MMM yyyy", "MMM dd, yyyy")
 
                 val now = Date().time
                 entries = entryValues.map { value ->

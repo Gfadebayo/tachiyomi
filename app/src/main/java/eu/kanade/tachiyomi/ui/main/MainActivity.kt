@@ -1,6 +1,5 @@
 package eu.kanade.tachiyomi.ui.main
 
-import android.app.Activity
 import android.app.SearchManager
 import android.content.Intent
 import android.os.Bundle
@@ -10,6 +9,7 @@ import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceDialogController
 import com.bluelinelabs.conductor.Conductor
 import com.bluelinelabs.conductor.Controller
@@ -18,7 +18,6 @@ import com.bluelinelabs.conductor.Router
 import com.bluelinelabs.conductor.RouterTransaction
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
-import com.google.android.material.tabs.TabLayout
 import eu.kanade.tachiyomi.BuildConfig
 import eu.kanade.tachiyomi.Migrations
 import eu.kanade.tachiyomi.R
@@ -26,7 +25,7 @@ import eu.kanade.tachiyomi.data.notification.NotificationReceiver
 import eu.kanade.tachiyomi.data.preference.asImmediateFlow
 import eu.kanade.tachiyomi.databinding.MainActivityBinding
 import eu.kanade.tachiyomi.extension.api.ExtensionGithubApi
-import eu.kanade.tachiyomi.ui.base.activity.BaseActivity
+import eu.kanade.tachiyomi.ui.base.activity.BaseViewBindingActivity
 import eu.kanade.tachiyomi.ui.base.controller.DialogController
 import eu.kanade.tachiyomi.ui.base.controller.FabController
 import eu.kanade.tachiyomi.ui.base.controller.NoToolbarElevationController
@@ -44,15 +43,13 @@ import eu.kanade.tachiyomi.ui.recent.history.HistoryController
 import eu.kanade.tachiyomi.ui.recent.updates.UpdatesController
 import eu.kanade.tachiyomi.util.lang.launchIO
 import eu.kanade.tachiyomi.util.lang.launchUI
-import kotlinx.android.synthetic.main.main_activity.appbar
-import kotlinx.android.synthetic.main.main_activity.tabs
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import timber.log.Timber
 import java.util.Date
 import java.util.concurrent.TimeUnit
 
-class MainActivity : BaseActivity<MainActivityBinding>() {
+class MainActivity : BaseViewBindingActivity<MainActivityBinding>() {
 
     private lateinit var router: Router
 
@@ -71,6 +68,8 @@ class MainActivity : BaseActivity<MainActivityBinding>() {
     private var isConfirmingExit: Boolean = false
     private var isHandlingShortcut: Boolean = false
 
+    private var fixedViewsToBottom = mutableMapOf<View, AppBarLayout.OnOffsetChangedListener>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -83,7 +82,6 @@ class MainActivity : BaseActivity<MainActivityBinding>() {
         }
 
         setContentView(binding.root)
-
         setSupportActionBar(binding.toolbar)
 
         tabAnimator = ViewHeightAnimator(binding.tabs, 0L)
@@ -92,7 +90,7 @@ class MainActivity : BaseActivity<MainActivityBinding>() {
         // Set behavior of bottom nav
         preferences.hideBottomBar()
             .asImmediateFlow { setBottomNavBehaviorOnScroll() }
-            .launchIn(scope)
+            .launchIn(lifecycleScope)
 
         binding.bottomNav.setOnNavigationItemSelectedListener { item ->
             val id = item.itemId
@@ -164,15 +162,15 @@ class MainActivity : BaseActivity<MainActivityBinding>() {
 
         preferences.extensionUpdatesCount()
             .asImmediateFlow { setExtensionsBadge() }
-            .launchIn(scope)
+            .launchIn(lifecycleScope)
 
         preferences.downloadedOnly()
             .asImmediateFlow { binding.downloadedOnly.isVisible = it }
-            .launchIn(scope)
+            .launchIn(lifecycleScope)
 
         preferences.incognitoMode()
             .asImmediateFlow { binding.incognitoMode.isVisible = it }
-            .launchIn(scope)
+            .launchIn(lifecycleScope)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -201,7 +199,7 @@ class MainActivity : BaseActivity<MainActivityBinding>() {
             return
         }
 
-        launchIO {
+        lifecycleScope.launchIO {
             try {
                 val pendingUpdates = ExtensionGithubApi().checkForUpdates(this@MainActivity)
                 preferences.extensionUpdatesCount().set(pendingUpdates.size)
@@ -246,12 +244,12 @@ class MainActivity : BaseActivity<MainActivityBinding>() {
                 setSelectedNavItem(R.id.nav_more)
                 router.pushController(RouterTransaction.with(DownloadController()))
             }
-            Intent.ACTION_SEARCH, "com.google.android.gms.actions.SEARCH_ACTION" -> {
+            Intent.ACTION_SEARCH, Intent.ACTION_SEND, "com.google.android.gms.actions.SEARCH_ACTION" -> {
                 // If the intent match the "standard" Android search intent
                 // or the Google-specific search intent (triggered by saying or typing "search *query* on *Tachiyomi*" in Google Search/Google Assistant)
 
                 // Get the search query provided in extras, and if not null, perform a global search with it.
-                val query = intent.getStringExtra(SearchManager.QUERY)
+                val query = intent.getStringExtra(SearchManager.QUERY) ?: intent.getStringExtra(Intent.EXTRA_TEXT)
                 if (query != null && query.isNotEmpty()) {
                     if (router.backstackSize > 1) {
                         router.popToRoot()
@@ -294,7 +292,7 @@ class MainActivity : BaseActivity<MainActivityBinding>() {
             setSelectedNavItem(startScreenId)
         } else if (shouldHandleExitConfirmation()) {
             // Exit confirmation (resets after 2 seconds)
-            launchUI { resetExitConfirmation() }
+            lifecycleScope.launchUI { resetExitConfirmation() }
         } else if (backstackSize == 1 || !router.handleBack()) {
             // Regular back
             super.onBackPressed()
@@ -401,6 +399,24 @@ class MainActivity : BaseActivity<MainActivityBinding>() {
         }
     }
 
+    /**
+     * Used to manually offset a view within the activity's child views that might be cut off due to
+     * the collapsing AppBarLayout.
+     */
+    fun fixViewToBottom(view: View) {
+        val listener = AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
+            val maxAbsOffset = appBarLayout.measuredHeight - binding.tabs.measuredHeight
+            view.translationY = -maxAbsOffset - verticalOffset.toFloat()
+        }
+        binding.appbar.addOnOffsetChangedListener(listener)
+        fixedViewsToBottom[view] = listener
+    }
+
+    fun clearFixViewToBottom(view: View) {
+        val listener = fixedViewsToBottom.remove(view)
+        binding.appbar.removeOnOffsetChangedListener(listener)
+    }
+
     private fun setBottomNavBehaviorOnScroll() {
         showBottomNav(visible = true)
 
@@ -426,19 +442,4 @@ class MainActivity : BaseActivity<MainActivityBinding>() {
         const val INTENT_SEARCH_QUERY = "query"
         const val INTENT_SEARCH_FILTER = "filter"
     }
-}
-
-/**
- * Used to manually offset a view within the activity's child views that might be cut off due to the
- * collapsing AppBarLayout.
- */
-fun View.offsetAppbarHeight(activity: Activity) {
-    val appbar: AppBarLayout = activity.appbar
-    val tabs: TabLayout = activity.tabs
-    appbar.addOnOffsetChangedListener(
-        AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
-            val maxAbsOffset = appBarLayout.measuredHeight - tabs.measuredHeight
-            translationY = -maxAbsOffset - verticalOffset.toFloat()
-        }
-    )
 }

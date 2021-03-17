@@ -20,9 +20,7 @@ import org.acra.sender.HttpSender
 import org.conscrypt.Conscrypt
 import timber.log.Timber
 import uy.kohesive.injekt.Injekt
-import uy.kohesive.injekt.api.InjektScope
 import uy.kohesive.injekt.injectLazy
-import uy.kohesive.injekt.registry.default.DefaultRegistrar
 import java.security.Security
 
 @AcraCore(
@@ -30,30 +28,22 @@ import java.security.Security
     excludeMatchingSharedPreferencesKeys = [".*username.*", ".*password.*", ".*token.*"]
 )
 @AcraHttpSender(
-    uri = "https://tachiyomi.kanade.eu/crash_report",
+    uri = BuildConfig.ACRA_URI,
     httpMethod = HttpSender.Method.PUT
 )
 open class App : Application(), LifecycleObserver {
 
+    private val preferences: PreferencesHelper by injectLazy()
+
     override fun onCreate() {
         super.onCreate()
         if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())
-
-        // Debug tool; see https://fbflipper.com/
-        // SoLoader.init(this, false)
-        // if (BuildConfig.DEBUG && FlipperUtils.shouldEnableFlipper(this)) {
-        //     val client = AndroidFlipperClient.getInstance(this)
-        //     client.addPlugin(InspectorFlipperPlugin(this, DescriptorMapping.withDefaults()))
-        //     client.addPlugin(DatabasesFlipperPlugin(this))
-        //     client.start()
-        // }
 
         // TLS 1.3 support for Android < 10
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             Security.insertProviderAt(Conscrypt.newProvider(), 1)
         }
 
-        Injekt = InjektScope(DefaultRegistrar())
         Injekt.importModule(AppModule(this))
 
         setupAcra()
@@ -77,14 +67,15 @@ open class App : Application(), LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     @Suppress("unused")
     fun onAppBackgrounded() {
-        val preferences: PreferencesHelper by injectLazy()
         if (preferences.lockAppAfter().get() >= 0) {
             SecureActivityDelegate.locked = true
         }
     }
 
     protected open fun setupAcra() {
-        ACRA.init(this)
+        if (BuildConfig.FLAVOR != "dev") {
+            ACRA.init(this)
+        }
     }
 
     protected open fun setupNotificationChannels() {

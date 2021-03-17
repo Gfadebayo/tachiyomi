@@ -23,6 +23,14 @@ object PreferenceKeys {
 
     const val showPageNumber = "pref_show_page_number_key"
 
+    const val dualPageSplitPaged = "pref_dual_page_split"
+
+    const val dualPageSplitWebtoon = "pref_dual_page_split_webtoon"
+
+    const val dualPageInvertPaged = "pref_dual_page_invert"
+
+    const val dualPageInvertWebtoon = "pref_dual_page_invert_webtoon"
+
     const val showReadingMode = "pref_show_reading_mode"
 
     const val trueColor = "pref_true_color_key"
@@ -57,13 +65,19 @@ object PreferenceKeys {
 
     const val readWithTapping = "reader_tap"
 
-    const val readWithTappingInverted = "reader_tapping_inverted"
+    const val pagerNavInverted = "reader_tapping_inverted"
+
+    const val webtoonNavInverted = "reader_tapping_inverted_webtoon"
 
     const val readWithLongTap = "reader_long_tap"
 
     const val readWithVolumeKeys = "reader_volume_keys"
 
     const val readWithVolumeKeysInverted = "reader_volume_keys_inverted"
+
+    const val navigationModePager = "reader_navigation_mode_pager"
+
+    const val navigationModeWebtoon = "reader_navigation_mode_webtoon"
 
     const val webtoonSidePadding = "webtoon_side_padding"
 
@@ -117,11 +131,15 @@ object PreferenceKeys {
 
     const val filterCompleted = "pref_filter_library_completed"
 
+    const val filterTracked = "pref_filter_library_tracked"
+
     const val librarySortingMode = "library_sorting_mode"
 
     const val automaticExtUpdates = "automatic_ext_updates"
 
-    const val allowNsfwSource = "allow_nsfw_source"
+    const val showNsfwSource = "show_nsfw_source"
+    const val showNsfwExtension = "show_nsfw_extension"
+    const val labelNsfwExtension = "label_nsfw_extension"
 
     const val startScreen = "start_screen"
 
@@ -161,6 +179,8 @@ object PreferenceKeys {
 
     const val categoryTabs = "display_category_tabs"
 
+    const val categoryNumberOfItems = "display_number_of_items"
+
     const val alwaysShowChapterTransition = "always_show_chapter_transition"
 
     const val searchPinnedSourcesOnly = "search_pinned_sources_only"
@@ -180,6 +200,8 @@ object PreferenceKeys {
     const val defaultChapterDisplayByNameOrNumber = "default_chapter_display_by_name_or_number"
 
     const val incognitoMode = "incognito_mode"
+
+    const val createLegacyBackup = "create_legacy_backup"
 
     fun trackUsername(syncId: Int) = "pref_mangasync_username_$syncId"
 

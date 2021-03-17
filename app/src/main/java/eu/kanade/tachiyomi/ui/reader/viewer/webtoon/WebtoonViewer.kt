@@ -1,5 +1,6 @@
 package eu.kanade.tachiyomi.ui.reader.viewer.webtoon
 
+import android.graphics.PointF
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
@@ -9,12 +10,14 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.WebtoonLayoutManager
-import eu.kanade.tachiyomi.data.preference.PreferenceValues.TappingInvertMode
 import eu.kanade.tachiyomi.ui.reader.ReaderActivity
 import eu.kanade.tachiyomi.ui.reader.model.ChapterTransition
 import eu.kanade.tachiyomi.ui.reader.model.ReaderPage
 import eu.kanade.tachiyomi.ui.reader.model.ViewerChapters
 import eu.kanade.tachiyomi.ui.reader.viewer.BaseViewer
+import eu.kanade.tachiyomi.ui.reader.viewer.ViewerNavigation.NavigationRegion
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 import kotlin.math.max
@@ -24,6 +27,8 @@ import kotlin.math.min
  * Implementation of a [BaseViewer] to display pages with a [RecyclerView].
  */
 class WebtoonViewer(val activity: ReaderActivity, val isContinuous: Boolean = true) : BaseViewer {
+
+    private val scope = MainScope()
 
     /**
      * Recycler view used by this viewer.
@@ -58,7 +63,7 @@ class WebtoonViewer(val activity: ReaderActivity, val isContinuous: Boolean = tr
     /**
      * Configuration used by this viewer, like allow taps, or crop image borders.
      */
-    val config = WebtoonConfig()
+    val config = WebtoonConfig(scope)
 
     /**
      * Subscriptions to keep while this viewer is used.
@@ -101,25 +106,15 @@ class WebtoonViewer(val activity: ReaderActivity, val isContinuous: Boolean = tr
                 return@f
             }
 
-            val positionX = event.rawX
-            val positionY = event.rawY
-            val topSideTap = positionY < recycler.height * 0.25f
-            val bottomSideTap = positionY > recycler.height * 0.75f
-            val leftSideTap = positionX < recycler.width * 0.33f
-            val rightSideTap = positionX > recycler.width * 0.66f
-
-            val invertMode = config.tappingInverted
-            val invertVertical = invertMode == TappingInvertMode.VERTICAL || invertMode == TappingInvertMode.BOTH
-            val invertHorizontal = invertMode == TappingInvertMode.HORIZONTAL || invertMode == TappingInvertMode.BOTH
-
-            when {
-                topSideTap && !invertVertical || bottomSideTap && invertVertical -> scrollUp()
-                bottomSideTap && !invertVertical || topSideTap && invertVertical -> scrollDown()
-
-                leftSideTap && !invertHorizontal || rightSideTap && invertHorizontal -> scrollUp()
-                rightSideTap && !invertHorizontal || leftSideTap && invertHorizontal -> scrollDown()
-
-                else -> activity.toggleMenu()
+            val pos = PointF(event.rawX / recycler.width, event.rawY / recycler.height)
+            if (!config.tappingEnabled) activity.toggleMenu()
+            else {
+                val navigator = config.navigator
+                when (navigator.getAction(pos)) {
+                    NavigationRegion.MENU -> activity.toggleMenu()
+                    NavigationRegion.NEXT, NavigationRegion.RIGHT -> scrollDown()
+                    NavigationRegion.PREV, NavigationRegion.LEFT -> scrollUp()
+                }
             }
         }
         recycler.longTapListener = f@{ event ->
@@ -152,7 +147,7 @@ class WebtoonViewer(val activity: ReaderActivity, val isContinuous: Boolean = tr
         // Initial opening - preload allowed
         currentPage ?: return true
 
-        val nextItem = adapter.items.getOrNull(adapter.items.count() - 1)
+        val nextItem = adapter.items.getOrNull(adapter.items.size - 1)
         val nextChapter = (nextItem as? ChapterTransition.Next)?.to ?: (nextItem as? ReaderPage)?.chapter
 
         // Allow preload for
@@ -177,6 +172,7 @@ class WebtoonViewer(val activity: ReaderActivity, val isContinuous: Boolean = tr
      */
     override fun destroy() {
         super.destroy()
+        scope.cancel()
         subscriptions.unsubscribe()
     }
 
@@ -185,7 +181,7 @@ class WebtoonViewer(val activity: ReaderActivity, val isContinuous: Boolean = tr
      * activity of the change and requests the preload of the next chapter if this is the last page.
      */
     private fun onPageSelected(page: ReaderPage, allowPreload: Boolean) {
-        val pages = page.chapter.pages!! // Won't be null because it's the loaded chapter
+        val pages = page.chapter.pages ?: return
         Timber.d("onPageSelected: ${page.number}/${pages.size}")
         activity.onPageSelected(page)
 
@@ -229,7 +225,7 @@ class WebtoonViewer(val activity: ReaderActivity, val isContinuous: Boolean = tr
         if (recycler.isGone) {
             Timber.d("Recycler first layout")
             val pages = chapters.currChapter.pages ?: return
-            moveToPage(pages[chapters.currChapter.requestedPage])
+            moveToPage(pages[min(chapters.currChapter.requestedPage, pages.lastIndex)])
             recycler.isVisible = true
         }
     }
@@ -293,11 +289,11 @@ class WebtoonViewer(val activity: ReaderActivity, val isContinuous: Boolean = tr
             }
             KeyEvent.KEYCODE_MENU -> if (isUp) activity.toggleMenu()
 
-            KeyEvent.KEYCODE_DPAD_RIGHT,
+            KeyEvent.KEYCODE_DPAD_LEFT,
             KeyEvent.KEYCODE_DPAD_UP,
             KeyEvent.KEYCODE_PAGE_UP -> if (isUp) scrollUp()
 
-            KeyEvent.KEYCODE_DPAD_LEFT,
+            KeyEvent.KEYCODE_DPAD_RIGHT,
             KeyEvent.KEYCODE_DPAD_DOWN,
             KeyEvent.KEYCODE_PAGE_DOWN -> if (isUp) scrollDown()
             else -> return false

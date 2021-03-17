@@ -31,6 +31,9 @@
         <item name="android:windowMinWidthMinor">@android:dimen/dialog_min_width_minor</item>
 
         <item name="android:background">?attr/colorSurface</item>
+        <item name="shapeAppearanceOverlay">@style/Theme.MaterialAlertDialog.Style.ShapeAppearance</item>
+
+        <item name="materialAlertDialogTitleTextStyle">@style/Theme.MaterialAlertDialog.Style.Title</item>
         <item name="android:textColorPrimary">?attr/colorOnSurface</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
 
@@ -39,12 +42,46 @@
         <item name="buttonBarNeutralButtonStyle">@style/Theme.Widget.Button</item>
     </style>
 
+    <style name="Theme.MaterialAlertDialog.Style.ShapeAppearance" parent="">
+        <item name="cornerSize">@dimen/dialog_radius</item>
+    </style>
+
+    <style name="Theme.MaterialAlertDialog.Style.Title" parent="@style/MaterialAlertDialog.MaterialComponents.Title.Text">
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:textSize">@dimen/md_title_textsize</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
     <style name="Theme.AlertDialog.Light" parent="Theme.AlertDialog">
         <item name="colorAccent">@color/colorAccentLight</item>
     </style>
 
     <style name="Theme.AlertDialog.Dark" parent="Theme.AlertDialog">
         <item name="colorAccent">@color/colorAccentDark</item>
+    </style>
+
+
+    <!--===========-->
+    <!--BottomSheet-->
+    <!--===========-->
+
+    <style name="Theme.BottomSheet" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">?attr/colorPrimary</item>
+        <item name="bottomSheetStyle">@style/Theme.BottomSheet.Style</item>
+    </style>
+
+    <style name="Theme.BottomSheet.Style" parent="Widget.MaterialComponents.BottomSheet">
+        <item name="shapeAppearanceOverlay">@style/Theme.BottomSheet.Style.ShapeAppearance</item>
+    </style>
+
+    <style name="Theme.BottomSheet.Style.ShapeAppearance" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopRight">@dimen/dialog_radius</item>
+        <item name="cornerSizeTopLeft">@dimen/dialog_radius</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
     </style>
 
 
@@ -131,7 +168,7 @@
         <item name="fabCustomSize">@dimen/fab_size</item>
         <item name="android:minWidth">@dimen/fab_size</item>
         <item name="android:layout_gravity">bottom|end</item>
-        <item name="android:layout_margin">@dimen/fab_margin</item>
+        <item name="android:layout_margin">16dp</item>
         <item name="android:scaleType">fitCenter</item>
         <item name="layout_anchorGravity">bottom|right|end</item>
         <item name="android:fontFamily">sans-serif-medium</item>
@@ -185,7 +222,7 @@
 
 
     <style name="Theme.Widget.Snackbar" parent="Widget.MaterialComponents.Snackbar">
-        <item name="android:background">@drawable/snackbar_bg</item>
+        <item name="android:background">@drawable/snackbar_background</item>
         <item name="actionTextColorAlpha">1</item>
     </style>
     <style name="Theme.Widget.Snackbar.TextView" parent="@style/Widget.MaterialComponents.Snackbar.TextView">
@@ -211,6 +248,19 @@
 
     <style name="Theme.Widget.BasicSwitch" parent="Widget.MaterialComponents.CompoundButton.Switch">
         <item name="useMaterialThemeColors">false</item>
+    </style>
+
+
+    <style name="Theme.Widget.CircularProgressIndicator" parent="Widget.MaterialComponents.CircularProgressIndicator">
+        <item name="indicatorColor">?attr/colorAccent</item>
+    </style>
+    <style name="Theme.Widget.CircularProgressIndicator.Small" parent="Theme.Widget.CircularProgressIndicator">
+        <item name="indicatorSize">16dp</item>
+        <item name="trackThickness">2dp</item>
+    </style>
+
+    <style name="Theme.Widget.LinearProgressIndicator" parent="Widget.MaterialComponents.LinearProgressIndicator">
+        <item name="indicatorColor">?attr/colorAccent</item>
     </style>
 
 
@@ -313,23 +363,5 @@
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:textSize">15sp</item>
     </style>
-
-
-    <!--===-->
-    <!--OLD-->
-    <!--===-->
-    <style name="FilePickerTheme" parent="NNF_BaseTheme.Light">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimary</item>
-        <item name="colorAccent">@color/colorAccentLight</item>
-        <item name="colorButtonNormal">@color/colorPrimary</item>
-        <item name="android:textSize">14sp</item>
-
-        <item name="alertDialogTheme">@style/FilePickerAlertDialogTheme</item>
-
-        <item name="nnf_toolbarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
-    </style>
-
-    <style name="FilePickerAlertDialogTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert" />
 
 </resources>

@@ -73,7 +73,6 @@
     <string name="all">Tudo</string>
     <string name="pref_library_update_restriction">Restrições sobre a atualização da biblioteca</string>
     <string name="pref_library_update_restriction_summary">Atualizar apenas quando se cumprem as condições</string>
-    <string name="wifi">Wi-Fi</string>
     <string name="charging">A carregar</string>
     <string name="pref_update_only_non_completed">Atualizar apenas mangás a decorrer</string>
     <string name="pref_auto_update_manga_sync">Atualizar progresso do capítulo após leitura</string>
@@ -262,8 +261,8 @@
     <string name="action_sort_total">Total de capítulos</string>
     <string name="action_sort_last_read">Última leitura</string>
     <string name="action_global_search">Procura geral</string>
-    <string name="action_bookmark">Marcar</string>
-    <string name="action_remove_bookmark">Desmarcar</string>
+    <string name="action_bookmark">Marcar capítulo</string>
+    <string name="action_remove_bookmark">Desmarcar capítulo</string>
     <string name="action_add">Adicionar</string>
     <string name="action_close">Fechar</string>
     <string name="action_move">Mover</string>
@@ -278,10 +277,9 @@
     <string name="action_login">Entrar</string>
     <string name="short_recent_updates">Atualizações</string>
     <string name="update_weekly">Semanalmente</string>
-    <string name="update_monthly">Mensalmente</string>
     <string name="pref_start_screen">Ecrã inicial</string>
-    <string name="pref_language">Língua</string>
-    <string name="system_default">Predefinição</string>
+    <string name="pref_language">Idioma</string>
+    <string name="system_default">Padrão</string>
     <string name="action_restore">Restaurar</string>
     <string name="app_not_available">App não disponível</string>
     <string name="default_category">Categoria padrão</string>
@@ -295,10 +293,10 @@
     <string name="ext_uninstall">Desinstalar</string>
     <string name="ext_available">Disponível</string>
     <string name="untrusted_extension">Extensão não confiável</string>
-    <string name="untrusted_extension_message">Esta extensão possui um certificado não confiável e não foi ativada. 
-\n 
-\nUma extensão maliciosa podia ler qualquer credencial de entrada armazenada no Tachiyomi ou executar código arbitrário. 
-\n 
+    <string name="untrusted_extension_message">Esta extensão possui um certificado não confiável e não foi ativada.
+\n
+\nUma extensão maliciosa podia ler qualquer credencial de entrada armazenada no Tachiyomi ou executar código arbitrário.
+\n
 \nAo confiar neste certificado serão aceites estes riscos.</string>
     <string name="ext_version_info">Versão: %1$s</string>
     <string name="ext_language_info">Língua: %1$s</string>
@@ -516,7 +514,7 @@
     <string name="action_select_inverse">Seleção inversa</string>
     <string name="action_sort_last_checked">Última verificação</string>
     <string name="label_sources">Fontes</string>
-    <string name="website">Website</string>
+    <string name="website">Sítio Web</string>
     <string name="restoring_backup_canceled">Restauro cancelado</string>
     <string name="restoring_backup_error">Restauro da cópia de segurança falhou</string>
     <string name="restore_in_progress">Restauro já em progresso</string>
@@ -528,8 +526,6 @@
     <string name="information_webview_required">WebView é necessária para Tachiyomi</string>
     <string name="recent_manga_time">Cap. %1$s - %2$s</string>
     <string name="error_invalid_date_supplied">Data fornecida inválida</string>
-    <string name="track_finished_reading_date">Data de fim de leitura</string>
-    <string name="track_started_reading_date">Data de início de leitura</string>
     <string name="add_tracking">Adicionar à monitorização</string>
     <string name="manga_info_collapse">Menos</string>
     <string name="manga_info_expand">Mais</string>
@@ -606,9 +602,8 @@
     </plurals>
     <string name="unknown_status">Estado desconhecido</string>
     <string name="unknown_author">Autor desconhecido</string>
-    <string name="pref_dns_over_https_summary">Requer reinício da app para ter efeito</string>
+    <string name="requires_app_restart">Requer reinício da app para ter efeito</string>
     <string name="label_network">Rede</string>
-    <string name="pref_dns_over_https" translatable="false">DNS por HTTPS (Cloudflare)</string>
     <string name="updated_version">Atualizado para v%1$s</string>
     <string name="whats_new">Novidades</string>
     <string name="action_download_unread">Transferir capítulos não lidos</string>
@@ -632,14 +627,9 @@
     <string name="backup_restore_missing_trackers">Monitorizadores sem sessão iniciada:</string>
     <string name="pref_remove_bookmarked_chapters">Eliminar capítulos marcados</string>
     <string name="pref_category_delete_chapters">Eliminar capítulos</string>
-    <string name="ext_nsfw_warning">Pode conter conteúdo 18+</string>
+    <string name="ext_nsfw_warning">Pode conter conteúdo NSFW (18+)</string>
     <string name="ext_nsfw_short">18+</string>
-    <string name="parental_controls_info">Isto não impede que extensões não oficiais ou potencialmente marcadas de forma incorreta surjam com conteúdos de 18+ dentro da aplicação.</string>
-    <string name="pref_allow_nsfw_sources_blocked">Bloqueado</string>
-    <string name="pref_allow_nsfw_sources_allowed_multisource">Bloquear fontes de navegação mas mostrar na lista de extensões</string>
-    <string name="pref_allow_nsfw_sources_allowed">Permitido</string>
-    <string name="pref_allow_nsfw_sources">fontes 18+</string>
-    <string name="pref_category_parental_controls">Controlos parentais</string>
+    <string name="parental_controls_info">Isto não impede que extensões não oficiais ou potencialmente marcadas de forma incorreta surjam com conteúdos de NSFW (18+) dentro da aplicação.</string>
     <plurals name="missing_chapters_warning">
         <item quantity="one">Há 1 capítulo em falta</item>
         <item quantity="other">Há %d capítulos em falta</item>
@@ -648,7 +638,6 @@
     <string name="chapter_settings_updated">Definições padrão de capítulo atualizadas</string>
     <string name="confirm_set_chapter_settings">Tem certeza de que quer guardar estas definições como padrão\?</string>
     <string name="chapter_settings">Definições dos capítulos</string>
-    <string name="action_web_view">WebView</string>
     <string name="share_page_info">%1$s: %2$s, página %3$d</string>
     <string name="set_chapter_settings_as_default">Definir como padrão</string>
     <string name="also_set_chapter_settings_for_library">Também aplicar a todos os mangás na minha biblioteca</string>
@@ -656,4 +645,50 @@
     <string name="downloaded_chapters">Capítulos descarregados</string>
     <string name="manga_from_library">Mangas da biblioteca</string>
     <string name="pref_hide_bottom_bar_on_scroll">Esconder a barra inferior ao rodar</string>
+    <string name="pref_incognito_mode_summary">Pausa histórico de leitura</string>
+    <string name="pref_incognito_mode">Modo incógnito</string>
+    <string name="pref_clear_history_summary">Eliminar histórico de leitura de todas as mangás</string>
+    <string name="pref_clear_history">Eliminar histórico</string>
+    <string name="clear_history_confirmation">Tem a certeza\? Todo o histórico será perdido.</string>
+    <string name="clear_history_completed">Histórico eliminado</string>
+    <string name="pref_category_nsfw_content">Conteúdo 18+ (NSFW)</string>
+    <string name="spen_next_page">Página seguinte</string>
+    <string name="spen_previous_page">Página anterior</string>
+    <string name="migration_help_guide">Guia de migração de fonte</string>
+    <string name="invalid_backup_file_type">Tipo de ficheiro da cópia de segurança inválido: %1$s
+\nDeve terminar com .proto.gz ou .json.</string>
+    <string name="full_restore_offline">Restaurar offline, termina rapidamente mas contém apenas o que a sua cópiad de segurança tem</string>
+    <string name="full_restore_online">Restaurar online, muito mais lento mas dá-lhe mais informações e capítulos mais atualizados</string>
+    <string name="full_restore_mode">Modo de Rede</string>
+    <string name="pref_backup_auto_create_legacy">Criar também cópia de segurança antiga</string>
+    <string name="pref_create_legacy_backup_summary">Pode ser usado em versões mais antigas do Tachiyomi</string>
+    <string name="pref_create_legacy_backup">Criar cópia de segurança antiga</string>
+    <string name="file_picker_error">Não foi encontrada app de selecção de ficheiros</string>
+    <string name="myanimelist_relogin">Por favor inicie sessão no MAL novamente</string>
+    <string name="myanimelist_creds_missing">Credenciais de sessão MAL não encontradas</string>
+    <string name="pref_label_nsfw_extension">Nome na lista de extensões</string>
+    <string name="pref_show_nsfw_extension">Mostrar na lista de extensões</string>
+    <string name="pref_show_nsfw_source">Mostrar na lista de fontes</string>
+    <string name="pref_viewer_nav">Esquema de navegação</string>
+    <string name="kindlish_nav">Estilo Kindle</string>
+    <string name="l_nav">Em forma de L</string>
+    <string name="default_nav">Padrão</string>
+    <string name="network_unmetered">Rede ilimitada</string>
+    <string name="action_desc">Descendente</string>
+    <string name="action_asc">Ascendente</string>
+    <string name="action_order_by_chapter_number">Por número do capítulo</string>
+    <string name="action_order_by_upload_date">Por data de envio</string>
+    <string name="action_filter_tracked">Monitorizado</string>
+    <string name="edge_nav">Borda</string>
+    <string name="channel_crash_logs">Registos de falhas</string>
+    <string name="track_finished_reading_date">Data de fim de leitura</string>
+    <string name="track_started_reading_date">Data de início de leitura</string>
+    <string name="crash_log_saved">Registos de falhas guardados</string>
+    <string name="pref_dump_crash_logs">Guardar registos de falhas</string>
+    <string name="pref_dump_crash_logs_summary">Guarda registos de erros num ficheiro para partilhar com os desenvolvedores</string>
+    <string name="action_display_show_number_of_items">Mostrar número de itens</string>
+    <string name="right_and_left_nav">Direita e Esquerda</string>
+    <string name="pref_dual_page_split">Divisão de página dupla (ALPHA)</string>
+    <string name="pref_dual_page_invert_summary">Se o posicionamento da divisão de página dupla não corresponder à direção de leitura</string>
+    <string name="pref_dual_page_invert">Inverter posicionamento de divisão de página dupla</string>
 </resources>

@@ -6,9 +6,11 @@ import eu.kanade.tachiyomi.data.track.TrackManager
 import eu.kanade.tachiyomi.data.track.model.TrackSearch
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.POST
-import eu.kanade.tachiyomi.network.asObservableSuccess
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
+import eu.kanade.tachiyomi.network.await
+import eu.kanade.tachiyomi.network.jsonMime
+import eu.kanade.tachiyomi.network.parseAs
+import eu.kanade.tachiyomi.util.lang.withIOContext
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -19,62 +21,53 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonObject
 import okhttp3.FormBody
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import rx.Observable
 
 class ShikimoriApi(private val client: OkHttpClient, interceptor: ShikimoriInterceptor) {
 
-    private val jsonime = "application/json; charset=utf-8".toMediaTypeOrNull()
     private val authClient = client.newBuilder().addInterceptor(interceptor).build()
 
-    fun addLibManga(track: Track, user_id: String): Observable<Track> {
-        val payload = buildJsonObject {
-            putJsonObject("user_rate") {
-                put("user_id", user_id)
-                put("target_id", track.media_id)
-                put("target_type", "Manga")
-                put("chapters", track.last_chapter_read)
-                put("score", track.score.toInt())
-                put("status", track.toShikimoriStatus())
+    suspend fun addLibManga(track: Track, user_id: String): Track {
+        return withIOContext {
+            val payload = buildJsonObject {
+                putJsonObject("user_rate") {
+                    put("user_id", user_id)
+                    put("target_id", track.media_id)
+                    put("target_type", "Manga")
+                    put("chapters", track.last_chapter_read)
+                    put("score", track.score.toInt())
+                    put("status", track.toShikimoriStatus())
+                }
             }
+            authClient.newCall(
+                POST(
+                    "$apiUrl/v2/user_rates",
+                    body = payload.toString().toRequestBody(jsonMime)
+                )
+            ).await()
+            track
         }
-        val body = payload.toString().toRequestBody(jsonime)
-        val request = Request.Builder()
-            .url("$apiUrl/v2/user_rates")
-            .post(body)
-            .build()
-        return authClient.newCall(request)
-            .asObservableSuccess()
-            .map {
-                track
-            }
     }
 
-    fun updateLibManga(track: Track, user_id: String): Observable<Track> = addLibManga(track, user_id)
+    suspend fun updateLibManga(track: Track, user_id: String): Track = addLibManga(track, user_id)
 
-    fun search(search: String): Observable<List<TrackSearch>> {
-        val url = "$apiUrl/mangas".toUri().buildUpon()
-            .appendQueryParameter("order", "popularity")
-            .appendQueryParameter("search", search)
-            .appendQueryParameter("limit", "20")
-            .build()
-        val request = Request.Builder()
-            .url(url.toString())
-            .get()
-            .build()
-        return authClient.newCall(request)
-            .asObservableSuccess()
-            .map { netResponse ->
-                val responseBody = netResponse.body?.string().orEmpty()
-                if (responseBody.isEmpty()) {
-                    throw Exception("Null Response")
+    suspend fun search(search: String): List<TrackSearch> {
+        return withIOContext {
+            val url = "$apiUrl/mangas".toUri().buildUpon()
+                .appendQueryParameter("order", "popularity")
+                .appendQueryParameter("search", search)
+                .appendQueryParameter("limit", "20")
+                .build()
+            authClient.newCall(GET(url.toString()))
+                .await()
+                .parseAs<JsonArray>()
+                .let { response ->
+                    response.map {
+                        jsonToSearch(it.jsonObject)
+                    }
                 }
-                val response = Json.decodeFromString<JsonArray>(responseBody)
-                response.map { jsonToSearch(it.jsonObject) }
-            }
+        }
     }
 
     private fun jsonToSearch(obj: JsonObject): TrackSearch {
@@ -103,61 +96,51 @@ class ShikimoriApi(private val client: OkHttpClient, interceptor: ShikimoriInter
         }
     }
 
-    fun findLibManga(track: Track, user_id: String): Observable<Track?> {
-        val url = "$apiUrl/v2/user_rates".toUri().buildUpon()
-            .appendQueryParameter("user_id", user_id)
-            .appendQueryParameter("target_id", track.media_id.toString())
-            .appendQueryParameter("target_type", "Manga")
-            .build()
-        val request = Request.Builder()
-            .url(url.toString())
-            .get()
-            .build()
+    suspend fun findLibManga(track: Track, user_id: String): Track? {
+        return withIOContext {
+            val urlMangas = "$apiUrl/mangas".toUri().buildUpon()
+                .appendPath(track.media_id.toString())
+                .build()
+            val mangas = authClient.newCall(GET(urlMangas.toString()))
+                .await()
+                .parseAs<JsonObject>()
 
-        val urlMangas = "$apiUrl/mangas".toUri().buildUpon()
-            .appendPath(track.media_id.toString())
-            .build()
-        val requestMangas = Request.Builder()
-            .url(urlMangas.toString())
-            .get()
-            .build()
-        return authClient.newCall(requestMangas)
-            .asObservableSuccess()
-            .map { netResponse ->
-                val responseBody = netResponse.body?.string().orEmpty()
-                Json.decodeFromString<JsonObject>(responseBody)
-            }.flatMap { mangas ->
-                authClient.newCall(request)
-                    .asObservableSuccess()
-                    .map { netResponse ->
-                        val responseBody = netResponse.body?.string().orEmpty()
-                        if (responseBody.isEmpty()) {
-                            throw Exception("Null Response")
-                        }
-                        val response = Json.decodeFromString<JsonArray>(responseBody)
-                        if (response.size > 1) {
-                            throw Exception("Too much mangas in response")
-                        }
-                        val entry = response.map {
-                            jsonToTrack(it.jsonObject, mangas)
-                        }
-                        entry.firstOrNull()
+            val url = "$apiUrl/v2/user_rates".toUri().buildUpon()
+                .appendQueryParameter("user_id", user_id)
+                .appendQueryParameter("target_id", track.media_id.toString())
+                .appendQueryParameter("target_type", "Manga")
+                .build()
+            authClient.newCall(GET(url.toString()))
+                .await()
+                .parseAs<JsonArray>()
+                .let { response ->
+                    if (response.size > 1) {
+                        throw Exception("Too much mangas in response")
                     }
-            }
+                    val entry = response.map {
+                        jsonToTrack(it.jsonObject, mangas)
+                    }
+                    entry.firstOrNull()
+                }
+        }
     }
 
     fun getCurrentUser(): Int {
-        val user = authClient.newCall(GET("$apiUrl/users/whoami")).execute().body?.string()!!
-        return Json.decodeFromString<JsonObject>(user)["id"]!!.jsonPrimitive.int
+        return runBlocking {
+            authClient.newCall(GET("$apiUrl/users/whoami"))
+                .await()
+                .parseAs<JsonObject>()
+                .let {
+                    it["id"]!!.jsonPrimitive.int
+                }
+        }
     }
 
-    fun accessToken(code: String): Observable<OAuth> {
-        return client.newCall(accessTokenRequest(code)).asObservableSuccess().map { netResponse ->
-            val responseBody = netResponse.body?.string().orEmpty()
-            if (responseBody.isEmpty()) {
-                throw Exception("Null Response")
-            }
-            Json { ignoreUnknownKeys = true }.decodeFromString<OAuth>(responseBody)
+    suspend fun accessToken(code: String): OAuth {
+        return withIOContext {
+            client.newCall(accessTokenRequest(code))
+                .await()
+                .parseAs()
         }
     }
 

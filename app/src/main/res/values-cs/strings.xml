@@ -9,7 +9,7 @@
     <string name="label_recent_manga">Historie</string>
     <string name="label_categories">Kategorie</string>
     <string name="label_backup">Záloha</string>
-    <string name="label_migration">Zdroj migrace</string>
+    <string name="label_migration">Migrovat</string>
     <string name="label_extensions">Rozšíření</string>
     <string name="label_extension_info">Informace o rozšíření</string>
     <string name="action_settings">Nastavení</string>
@@ -59,7 +59,6 @@
     <string name="update_24hour">Denně</string>
     <string name="update_48hour">Každé 2 dny</string>
     <string name="update_weekly">Týdně</string>
-    <string name="update_monthly">Měsíčně</string>
     <string name="pref_update_only_non_completed">Aktualizovat pouze vycházející mangy</string>
     <string name="pref_auto_update_manga_sync">Synchronizovat kapitoly po přečtení</string>
     <string name="pref_start_screen">Úvodní obrazovka</string>
@@ -193,7 +192,7 @@
     <string name="update_check_notification_download_complete">Stahování dokončeno</string>
     <string name="update_check_notification_download_error">Chyba při stahování</string>
     <string name="update_check_notification_update_available">Dostupná aktualizace!</string>
-    <string name="information_no_recent">Žádné nedávné kapitoly</string>
+    <string name="information_no_recent">Žádné nedávné aktualizace</string>
     <string name="information_no_recent_manga">Žádné nedávno čtené mangy</string>
     <string name="download_notifier_title_error">Chyba</string>
     <string name="download_notifier_unknown_error">Došlo k neznámé chybě při stahování kapitoly</string>
@@ -238,7 +237,6 @@
     <string name="pref_library_update_interval">Frekvence aktualizace knihovny</string>
     <string name="update_never">Ručně</string>
     <string name="all">Vše</string>
-    <string name="wifi">Wi-Fi</string>
     <string name="charging">Nabíjení</string>
     <string name="default_category">Výchozí kategorie</string>
     <string name="default_category_summary">Vždy se zeptat</string>
@@ -370,7 +368,7 @@
     <string name="download_notifier_downloader_title">Stahovač</string>
     <string name="channel_common">Běžný</string>
     <string name="label_help">Nápověda</string>
-    <string name="action_open_in_web_view">Otevřít ve web view</string>
+    <string name="action_open_in_web_view">Otevřít ve WebView</string>
     <string name="pref_read_with_long_tap">Nabídka při dlouhém podržení</string>
     <string name="pref_true_color">32-bitová barva</string>
     <string name="pref_skip_read_chapters">Přeskakovat přečtené kapitoly</string>
@@ -401,4 +399,6 @@
     <string name="label_more">Více</string>
     <string name="action_menu">Menu</string>
     <string name="label_sources">Zdroje</string>
+    <string name="spen_previous_page">Předchozí stránka</string>
+    <string name="spen_next_page">Následující stránka</string>
 </resources>

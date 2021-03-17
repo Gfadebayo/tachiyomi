@@ -29,8 +29,8 @@
     <string name="action_mark_as_read">标记为已读</string>
     <string name="action_mark_as_unread">标记为未读</string>
     <string name="action_download">下载</string>
-    <string name="action_bookmark">添加书签</string>
-    <string name="action_remove_bookmark">移除书签</string>
+    <string name="action_bookmark">添加章节到书签</string>
+    <string name="action_remove_bookmark">从书签中移除章节</string>
     <string name="action_delete">删除</string>
     <string name="action_update">更新</string>
     <string name="action_update_library">更新书架</string>
@@ -98,12 +98,10 @@
     <string name="update_24hour">每天</string>
     <string name="update_48hour">每 2 天</string>
     <string name="update_weekly">每周</string>
-    <string name="update_monthly">每月</string>
     <string name="pref_library_update_categories">全局更新时包含的分类</string>
     <string name="all">全部</string>
     <string name="pref_library_update_restriction">书架更新条件</string>
     <string name="pref_library_update_restriction_summary">仅在符合条件时更新</string>
-    <string name="wifi">已连接 Wi-Fi</string>
     <string name="charging">正在充电</string>
     <string name="pref_update_only_non_completed">仅更新连载中的漫画</string>
     <string name="pref_auto_update_manga_sync">阅读后更新章节进度</string>
@@ -159,7 +157,7 @@
     <string name="scale_type_fit_screen">填充屏幕</string>
     <string name="scale_type_stretch">拉伸</string>
     <string name="scale_type_fit_width">适应宽度</string>
-    <string name="scale_type_fit_height">适应长度</string>
+    <string name="scale_type_fit_height">适应高度</string>
     <string name="scale_type_original_size">原始大小</string>
     <string name="scale_type_smart_fit">智能填充</string>
     <string name="pref_zoom_start">缩放位置</string>
@@ -181,7 +179,7 @@
     <string name="color_filter_a_value">A</string>
     <string name="pref_download_directory">下载路径</string>
     <string name="pref_download_only_over_wifi">仅通过 Wi-Fi 下载</string>
-    <string name="pref_remove_after_marked_as_read">被手动标记为已读后</string>
+    <string name="pref_remove_after_marked_as_read">手动标记为已读后</string>
     <string name="pref_remove_after_read">阅毕</string>
     <string name="custom_dir">自定义路径</string>
     <string name="disabled">关闭</string>
@@ -219,9 +217,9 @@
     <string name="choices_reset">重置对话选择</string>
     <string name="pref_clear_database">清除数据库</string>
     <string name="pref_clear_database_summary">删除未保存在书架中的漫画的历史</string>
-    <string name="clear_database_confirmation">你确定吗？这将会删除未在书架的漫画章节与阅读进度的数据</string>
+    <string name="clear_database_confirmation">你确定吗？未在书架中的漫画的已读章节和进度将会丢失</string>
     <string name="clear_database_completed">已删除条目</string>
-    <string name="pref_refresh_library_tracking">刷新同步</string>
+    <string name="pref_refresh_library_tracking">刷新同步进度</string>
     <string name="pref_refresh_library_tracking_summary">更新同步服务的状态，评分以及已读章节</string>
     <string name="version">版本</string>
     <string name="build_time">构建时间</string>
@@ -241,7 +239,7 @@
     <string name="source_requires_login">此图源需要登录</string>
     <string name="select_source">选择图源</string>
     <string name="no_valid_sources">请至少启用一个有效图源</string>
-    <string name="no_more_results">未找到更多结果</string>
+    <string name="no_more_results">没有更多结果</string>
     <string name="local_source">本地图源</string>
     <string name="other_source">其它</string>
     <string name="invalid_combination">默认分类不能与其它分类一起选择</string>
@@ -251,7 +249,7 @@
     <string name="browse">浏览</string>
     <string name="manga_not_in_db">此漫画已被移出数据库。</string>
     <string name="manga_detail_tab">详情</string>
-    <string name="description">描述</string>
+    <string name="description">介绍</string>
     <string name="ongoing">连载中</string>
     <string name="unknown">未知</string>
     <string name="licensed">已授权</string>
@@ -319,7 +317,7 @@
     <string name="chapter_subtitle">第 %1$s 章</string>
     <string name="no_next_chapter">后面没有啦</string>
     <string name="no_previous_chapter">前面没有啦</string>
-    <string name="decode_image_error">图片加载失败</string>
+    <string name="decode_image_error">无法加载该图片</string>
     <string name="confirm_set_image_as_cover">要将此页设为封面吗？</string>
     <string name="transition_finished">已读完：</string>
     <string name="transition_current">当前章节：</string>
@@ -447,7 +445,7 @@
     <string name="email">邮箱地址</string>
     <string name="pref_always_show_chapter_transition">总是显示章节间的过渡页面</string>
     <plurals name="notification_new_chapters_summary">
-        <item quantity="other">共 %d 个标题</item>
+        <item quantity="other">共 %d 个漫画</item>
     </plurals>
     <string name="pref_theme_light">浅色主题</string>
     <string name="theme_light_default">默认</string>
@@ -481,7 +479,7 @@
     <string name="pref_webtoon_side_padding">侧边填充</string>
     <string name="vertical_plus_viewer">从上到下（连续）</string>
     <string name="action_select_inverse">反选</string>
-    <string name="add_tracking">添加同步</string>
+    <string name="add_tracking">添加同步进度</string>
     <string name="information_webview_required">Tachiyomi 依赖于 WebView</string>
     <string name="manga_info_collapse">显示更少</string>
     <string name="manga_info_expand">显示更多</string>
@@ -508,8 +506,6 @@
     <string name="restore_duration">%02d 分，%02d 秒</string>
     <string name="pref_search_pinned_sources_only">仅在已置顶的图源中搜索</string>
     <string name="error_invalid_date_supplied">无效的日期</string>
-    <string name="track_finished_reading_date">完成阅读时间</string>
-    <string name="track_started_reading_date">开始阅读时间</string>
     <string name="gray_background">灰色</string>
     <string name="pref_category_for_this_series">适用于此系列</string>
     <string name="viewer">阅读模式</string>
@@ -523,7 +519,7 @@
     <string name="pref_true_color_summary">减少色彩带，但会降低性能</string>
     <string name="action_display_unread_badge">未读标记</string>
     <string name="pref_refresh_library_covers">刷新书架漫画封面</string>
-    <string name="tracking_info">单向同步以更新跟踪服务的章节进度。通过跟踪按钮设置对单个漫画条目的跟踪。</string>
+    <string name="tracking_info">将章节进度单向同步到同步服务。点击「同步」按钮以设置漫画的同步源。</string>
     <plurals name="notification_update_error">
         <item quantity="other">%1$d 本漫画更新失败</item>
     </plurals>
@@ -558,8 +554,7 @@
         <item quantity="other">%1$s 个章节</item>
     </plurals>
     <string name="action_open_in_settings">在设置中打开</string>
-    <string name="pref_dns_over_https_summary">需要重启应用才能生效</string>
-    <string name="pref_dns_over_https" translatable="false">DNS over HTTPS (Cloudflare)</string>
+    <string name="requires_app_restart">需要重启应用才能生效</string>
     <string name="label_network">网络</string>
     <string name="pref_jump_to_chapters">打开时跳转到阅读章节</string>
     <string name="tapping_inverted_both">水平 + 垂直</string>
@@ -589,35 +584,69 @@
     <string name="download_notifier_download_finish">下载已完成</string>
     <string name="channel_errors">错误</string>
     <string name="backup_restore_missing_trackers">未登录的同步源：</string>
-    <string name="pref_allow_nsfw_sources_blocked">拦截的</string>
-    <string name="pref_allow_nsfw_sources_allowed_multisource">阻止浏览源但显示在扩展列表中</string>
-    <string name="pref_allow_nsfw_sources_allowed">允许的</string>
-    <string name="pref_allow_nsfw_sources">仅适合18岁以上人士的源</string>
-    <string name="pref_remove_bookmarked_chapters">删除添加为书签的章节</string>
+    <string name="pref_remove_bookmarked_chapters">删除已添加书签的章节</string>
     <string name="pref_category_delete_chapters">删除章节</string>
-    <string name="ext_nsfw_warning">可能包含仅适合18岁以上人士的内容</string>
+    <string name="ext_nsfw_warning">可能包含NSFW (18+) 内容</string>
     <string name="ext_nsfw_short">18+</string>
-    <string name="parental_controls_info">这不会阻止非官方的或可能被错误标记的扩展程序在应用程序中显示仅适合18岁以上人士的内容。</string>
-    <string name="pref_category_parental_controls">家长控制</string>
+    <string name="parental_controls_info">这并不能防止非官方或可能被错误标记的扩展插件在应用程序中显示 NSFW (18+) 内容。</string>
     <plurals name="missing_chapters_warning">
-        <item quantity="other">有 %d 章缺失</item>
+        <item quantity="other">此处有 %d 章缺失</item>
     </plurals>
     <string name="no_chapters_error">未找到章节</string>
     <string name="chapter_settings_updated">更新了默认章节设置</string>
     <string name="set_chapter_settings_as_default">设为默认</string>
-    <string name="also_set_chapter_settings_for_library">也适用到我图书馆中的所有漫画</string>
-    <string name="confirm_set_chapter_settings">您确定要将这些设置保存为默认设置吗？</string>
+    <string name="also_set_chapter_settings_for_library">同时应用于书架里的所有漫画</string>
+    <string name="confirm_set_chapter_settings">确定要将当前设置保存为默认吗？</string>
     <string name="chapter_settings">章节设置</string>
-    <string name="action_web_view">WebView</string>
-    <string name="share_page_info">%1$s: %2$s, 第%3$d 页</string>
-    <string name="action_search_settings">搜索设定</string>
+    <string name="share_page_info">%1$s：%2$s，第 %3$d 页</string>
+    <string name="action_search_settings">搜索设置</string>
     <string name="downloaded_chapters">已下载的章节</string>
-    <string name="manga_from_library">来自图书馆的漫画</string>
-    <string name="pref_hide_bottom_bar_on_scroll">滚动时隐藏底部栏</string>
+    <string name="manga_from_library">书架里的漫画</string>
+    <string name="pref_hide_bottom_bar_on_scroll">滚动时隐藏底栏</string>
     <string name="pref_incognito_mode_summary">暂停记录阅读历史</string>
     <string name="pref_incognito_mode">隐身模式</string>
     <string name="pref_clear_history_summary">删除所有漫画的阅读历史</string>
     <string name="pref_clear_history">清除历史</string>
-    <string name="clear_history_confirmation">你确定吗\?所有的历史都将丢失。</string>
+    <string name="clear_history_confirmation">你确定吗？所有的历史都将丢失。</string>
     <string name="clear_history_completed">历史已删除</string>
+    <string name="spen_next_page">下一页</string>
+    <string name="spen_previous_page">上一页</string>
+    <string name="full_restore_offline">离线恢复，完成得很快，但只包含备份文件有的内容</string>
+    <string name="full_restore_online">在线恢复，速度要慢得多但给你更多更新的信息和章节</string>
+    <string name="full_restore_mode">网络模式</string>
+    <string name="pref_backup_auto_create_legacy">同时创建旧版本备份</string>
+    <string name="pref_create_legacy_backup_summary">可用于旧版本的 Tachiyomi</string>
+    <string name="pref_create_legacy_backup">创建旧版本备份</string>
+    <string name="migration_help_guide">图源迁移指南</string>
+    <string name="invalid_backup_file_type">无效的备份文件类型：%1$s
+\n文件扩展名应为 .proto.gz 或 .json。</string>
+    <string name="pref_category_nsfw_content">NSFW (18+) 图源</string>
+    <string name="file_picker_error">未找到文件选择应用</string>
+    <string name="myanimelist_relogin">请重新登录 MyAnimeList</string>
+    <string name="myanimelist_creds_missing">未找到 MyAnimeList 登陆凭据</string>
+    <string name="pref_label_nsfw_extension">在扩展插件列表中添加标签</string>
+    <string name="pref_show_nsfw_extension">在扩展插件列表中显示</string>
+    <string name="pref_show_nsfw_source">在图源列表中显示</string>
+    <string name="pref_viewer_nav">导航布局</string>
+    <string name="edge_nav">边缘</string>
+    <string name="kindlish_nav">Kindle 样式</string>
+    <string name="l_nav">L 形</string>
+    <string name="default_nav">默认</string>
+    <string name="channel_crash_logs">崩溃记录</string>
+    <string name="track_finished_reading_date">完成阅读日期</string>
+    <string name="track_started_reading_date">开始阅读日期</string>
+    <string name="crash_log_saved">崩溃记录已保存</string>
+    <string name="pref_dump_crash_logs_summary">将错误记录保存到文件中，以便与开发人员共享</string>
+    <string name="pref_dump_crash_logs">转储崩溃记录</string>
+    <string name="network_unmetered">不按流量计费的网络</string>
+    <string name="action_desc">降序</string>
+    <string name="action_asc">升序</string>
+    <string name="action_order_by_chapter_number">按章节数</string>
+    <string name="action_order_by_upload_date">按上传日期</string>
+    <string name="action_filter_tracked">已跟踪</string>
+    <string name="action_display_show_number_of_items">显示条目数</string>
+    <string name="right_and_left_nav">右和左</string>
+    <string name="pref_dual_page_split">双页拆分 (ALPHA)</string>
+    <string name="pref_dual_page_invert">反转双页拆分放置</string>
+    <string name="pref_dual_page_invert_summary">如果双页拆分的放置与阅读方向不匹配</string>
 </resources>

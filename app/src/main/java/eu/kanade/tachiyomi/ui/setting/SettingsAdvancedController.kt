@@ -10,6 +10,7 @@ import android.provider.Settings
 import androidx.core.net.toUri
 import androidx.preference.PreferenceScreen
 import com.afollestad.materialdialogs.MaterialDialog
+import eu.kanade.tachiyomi.BuildConfig
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.cache.ChapterCache
 import eu.kanade.tachiyomi.data.database.DatabaseHelper
@@ -17,6 +18,7 @@ import eu.kanade.tachiyomi.data.library.LibraryUpdateService
 import eu.kanade.tachiyomi.data.library.LibraryUpdateService.Target
 import eu.kanade.tachiyomi.network.NetworkHelper
 import eu.kanade.tachiyomi.ui.base.controller.DialogController
+import eu.kanade.tachiyomi.util.CrashLogUtil
 import eu.kanade.tachiyomi.util.preference.defaultValue
 import eu.kanade.tachiyomi.util.preference.onClick
 import eu.kanade.tachiyomi.util.preference.preference
@@ -42,11 +44,24 @@ class SettingsAdvancedController : SettingsController() {
     @SuppressLint("BatteryLife")
     override fun setupPreferenceScreen(screen: PreferenceScreen) = screen.apply {
         titleRes = R.string.pref_category_advanced
-        switchPreference {
-            key = "acra.enable"
-            titleRes = R.string.pref_enable_acra
-            summaryRes = R.string.pref_acra_summary
-            defaultValue = true
+
+        if (BuildConfig.FLAVOR != "dev") {
+            switchPreference {
+                key = "acra.enable"
+                titleRes = R.string.pref_enable_acra
+                summaryRes = R.string.pref_acra_summary
+                defaultValue = true
+            }
+        }
+
+        preference {
+            key = "dump_crash_logs"
+            titleRes = R.string.pref_dump_crash_logs
+            summaryRes = R.string.pref_dump_crash_logs_summary
+
+            onClick {
+                CrashLogUtil(context).dumpLogs()
+            }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -95,16 +110,6 @@ class SettingsAdvancedController : SettingsController() {
                     ctrl.showDialog(router)
                 }
             }
-            preference {
-                titleRes = R.string.pref_clear_history
-                summaryRes = R.string.pref_clear_history_summary
-
-                onClick {
-                    val ctrl = ClearHistoryDialogController()
-                    ctrl.targetController = this@SettingsAdvancedController
-                    ctrl.showDialog(router)
-                }
-            }
         }
 
         preferenceCategory {
@@ -122,7 +127,7 @@ class SettingsAdvancedController : SettingsController() {
             switchPreference {
                 key = Keys.enableDoh
                 titleRes = R.string.pref_dns_over_https
-                summaryRes = R.string.pref_dns_over_https_summary
+                summaryRes = R.string.requires_app_restart
                 defaultValue = false
             }
         }
@@ -180,22 +185,6 @@ class SettingsAdvancedController : SettingsController() {
                 }
                 .negativeButton(android.R.string.cancel)
         }
-    }
-
-    class ClearHistoryDialogController : DialogController() {
-        override fun onCreateDialog(savedViewState: Bundle?): Dialog {
-            return MaterialDialog(activity!!)
-                .message(R.string.clear_history_confirmation)
-                .positiveButton(android.R.string.ok) {
-                    (targetController as? SettingsAdvancedController)?.clearHistory()
-                }
-                .negativeButton(android.R.string.cancel)
-        }
-    }
-
-    private fun clearHistory() {
-        db.deleteHistory().executeAsBlocking()
-        activity?.toast(R.string.clear_history_completed)
     }
 
     private fun clearDatabase() {

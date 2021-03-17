@@ -10,11 +10,9 @@ import com.tfcporciuncula.flow.Preference
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.database.models.Manga
 import eu.kanade.tachiyomi.data.preference.PreferenceValues.DisplayMode
-import eu.kanade.tachiyomi.data.preference.PreferenceValues.NsfwAllowance
 import eu.kanade.tachiyomi.data.track.TrackService
 import eu.kanade.tachiyomi.data.track.anilist.Anilist
 import eu.kanade.tachiyomi.widget.ExtendedNavigationView
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach
 import java.io.File
@@ -24,7 +22,6 @@ import java.util.Locale
 import eu.kanade.tachiyomi.data.preference.PreferenceKeys as Keys
 import eu.kanade.tachiyomi.data.preference.PreferenceValues as Values
 
-@OptIn(ExperimentalCoroutinesApi::class)
 fun <T> Preference<T>.asImmediateFlow(block: (value: T) -> Unit): Flow<T> {
     block(get())
     return asFlow()
@@ -39,7 +36,6 @@ operator fun <T> Preference<Set<T>>.minusAssign(item: T) {
     set(get() - item)
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class PreferencesHelper(val context: Context) {
 
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
@@ -93,6 +89,14 @@ class PreferencesHelper(val context: Context) {
 
     fun showPageNumber() = flowPrefs.getBoolean(Keys.showPageNumber, true)
 
+    fun dualPageSplitPaged() = flowPrefs.getBoolean(Keys.dualPageSplitPaged, false)
+
+    fun dualPageSplitWebtoon() = flowPrefs.getBoolean(Keys.dualPageSplitWebtoon, false)
+
+    fun dualPageInvertPaged() = flowPrefs.getBoolean(Keys.dualPageInvertPaged, false)
+
+    fun dualPageInvertWebtoon() = flowPrefs.getBoolean(Keys.dualPageInvertWebtoon, false)
+
     fun showReadingMode() = prefs.getBoolean(Keys.showReadingMode, true)
 
     fun trueColor() = flowPrefs.getBoolean(Keys.trueColor, false)
@@ -131,13 +135,19 @@ class PreferencesHelper(val context: Context) {
 
     fun readWithTapping() = flowPrefs.getBoolean(Keys.readWithTapping, true)
 
-    fun readWithTappingInverted() = flowPrefs.getEnum(Keys.readWithTappingInverted, Values.TappingInvertMode.NONE)
+    fun pagerNavInverted() = flowPrefs.getEnum(Keys.pagerNavInverted, Values.TappingInvertMode.NONE)
+
+    fun webtoonNavInverted() = flowPrefs.getEnum(Keys.webtoonNavInverted, Values.TappingInvertMode.NONE)
 
     fun readWithLongTap() = flowPrefs.getBoolean(Keys.readWithLongTap, true)
 
     fun readWithVolumeKeys() = flowPrefs.getBoolean(Keys.readWithVolumeKeys, false)
 
     fun readWithVolumeKeysInverted() = flowPrefs.getBoolean(Keys.readWithVolumeKeysInverted, false)
+
+    fun navigationModePager() = flowPrefs.getInt(Keys.navigationModePager, 0)
+
+    fun navigationModeWebtoon() = flowPrefs.getInt(Keys.navigationModeWebtoon, 0)
 
     fun portraitColumns() = flowPrefs.getInt(Keys.portraitColumns, 0)
 
@@ -213,11 +223,15 @@ class PreferencesHelper(val context: Context) {
 
     fun categoryTabs() = flowPrefs.getBoolean(Keys.categoryTabs, true)
 
+    fun categoryNumberOfItems() = flowPrefs.getBoolean(Keys.categoryNumberOfItems, false)
+
     fun filterDownloaded() = flowPrefs.getInt(Keys.filterDownloaded, ExtendedNavigationView.Item.TriStateGroup.State.IGNORE.value)
 
     fun filterUnread() = flowPrefs.getInt(Keys.filterUnread, ExtendedNavigationView.Item.TriStateGroup.State.IGNORE.value)
 
     fun filterCompleted() = flowPrefs.getInt(Keys.filterCompleted, ExtendedNavigationView.Item.TriStateGroup.State.IGNORE.value)
+
+    fun filterTracking(name: Int) = flowPrefs.getInt("${Keys.filterTracked}_$name", ExtendedNavigationView.Item.TriStateGroup.State.IGNORE.value)
 
     fun librarySortingMode() = flowPrefs.getInt(Keys.librarySortingMode, 0)
 
@@ -225,7 +239,9 @@ class PreferencesHelper(val context: Context) {
 
     fun automaticExtUpdates() = flowPrefs.getBoolean(Keys.automaticExtUpdates, true)
 
-    fun allowNsfwSource() = flowPrefs.getEnum(Keys.allowNsfwSource, NsfwAllowance.ALLOWED)
+    fun showNsfwSource() = flowPrefs.getBoolean(Keys.showNsfwSource, true)
+    fun showNsfwExtension() = flowPrefs.getBoolean(Keys.showNsfwExtension, true)
+    fun labelNsfwExtension() = prefs.getBoolean(Keys.labelNsfwExtension, true)
 
     fun extensionUpdatesCount() = flowPrefs.getInt("ext_updates_count", 0)
 
@@ -270,6 +286,8 @@ class PreferencesHelper(val context: Context) {
     fun sortChapterByAscendingOrDescending() = prefs.getInt(Keys.defaultChapterSortByAscendingOrDescending, Manga.SORT_DESC)
 
     fun incognitoMode() = flowPrefs.getBoolean(Keys.incognitoMode, false)
+
+    fun createLegacyBackup() = flowPrefs.getBoolean(Keys.createLegacyBackup, true)
 
     fun setChapterSettingsDefault(manga: Manga) {
         prefs.edit {

@@ -1,5 +1,7 @@
 package eu.kanade.tachiyomi.ui.manga.info
 
+import android.graphics.PorterDuff
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,11 +21,8 @@ import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.ui.manga.MangaController
 import eu.kanade.tachiyomi.util.system.copyToClipboard
+import eu.kanade.tachiyomi.util.system.getResourceColor
 import eu.kanade.tachiyomi.util.view.setChips
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
@@ -45,7 +44,6 @@ class MangaInfoHeaderAdapter(
     private var source: Source = controller.presenter.source
     private var trackCount: Int = 0
 
-    private val scope = CoroutineScope(Job() + Dispatchers.Main)
     private lateinit var binding: MangaInfoHeaderBinding
 
     private var initialLoad: Boolean = true
@@ -88,12 +86,12 @@ class MangaInfoHeaderAdapter(
 
             binding.btnFavorite.clicks()
                 .onEach { controller.onFavoriteClick() }
-                .launchIn(scope)
+                .launchIn(controller.viewScope)
 
             if (controller.presenter.manga.favorite && controller.presenter.getCategories().isNotEmpty()) {
                 binding.btnFavorite.longClicks()
                     .onEach { controller.onCategoriesClick() }
-                    .launchIn(scope)
+                    .launchIn(controller.viewScope)
             }
 
             with(binding.btnTracking) {
@@ -116,7 +114,7 @@ class MangaInfoHeaderAdapter(
 
                     clicks()
                         .onEach { controller.onTrackingClick() }
-                        .launchIn(scope)
+                        .launchIn(controller.viewScope)
                 } else {
                     isVisible = false
                 }
@@ -126,7 +124,7 @@ class MangaInfoHeaderAdapter(
                 binding.btnWebview.isVisible = true
                 binding.btnWebview.clicks()
                     .onEach { controller.openMangaInWebView() }
-                    .launchIn(scope)
+                    .launchIn(controller.viewScope)
             }
 
             binding.mangaFullTitle.longClicks()
@@ -136,13 +134,13 @@ class MangaInfoHeaderAdapter(
                         binding.mangaFullTitle.text.toString()
                     )
                 }
-                .launchIn(scope)
+                .launchIn(controller.viewScope)
 
             binding.mangaFullTitle.clicks()
                 .onEach {
                     controller.performGlobalSearch(binding.mangaFullTitle.text.toString())
                 }
-                .launchIn(scope)
+                .launchIn(controller.viewScope)
 
             binding.mangaAuthor.longClicks()
                 .onEach {
@@ -151,13 +149,13 @@ class MangaInfoHeaderAdapter(
                         binding.mangaAuthor.text.toString()
                     )
                 }
-                .launchIn(scope)
+                .launchIn(controller.viewScope)
 
             binding.mangaAuthor.clicks()
                 .onEach {
                     controller.performGlobalSearch(binding.mangaAuthor.text.toString())
                 }
-                .launchIn(scope)
+                .launchIn(controller.viewScope)
 
             binding.mangaArtist.longClicks()
                 .onEach {
@@ -166,13 +164,13 @@ class MangaInfoHeaderAdapter(
                         binding.mangaArtist.text.toString()
                     )
                 }
-                .launchIn(scope)
+                .launchIn(controller.viewScope)
 
             binding.mangaArtist.clicks()
                 .onEach {
                     controller.performGlobalSearch(binding.mangaArtist.text.toString())
                 }
-                .launchIn(scope)
+                .launchIn(controller.viewScope)
 
             binding.mangaSummaryText.longClicks()
                 .onEach {
@@ -181,7 +179,7 @@ class MangaInfoHeaderAdapter(
                         binding.mangaSummaryText.text.toString()
                     )
                 }
-                .launchIn(scope)
+                .launchIn(controller.viewScope)
 
             binding.mangaCover.longClicks()
                 .onEach {
@@ -190,7 +188,7 @@ class MangaInfoHeaderAdapter(
                         controller.presenter.manga.title
                     )
                 }
-                .launchIn(scope)
+                .launchIn(controller.viewScope)
 
             setMangaInfo(manga, source)
         }
@@ -201,7 +199,6 @@ class MangaInfoHeaderAdapter(
          * @param manga manga object containing information about manga.
          * @param source the source of the manga.
          */
-        @ExperimentalCoroutinesApi
         private fun setMangaInfo(manga: Manga, source: Source?) {
             // Update full title TextView.
             binding.mangaFullTitle.text = if (manga.title.isBlank()) {
@@ -299,13 +296,25 @@ class MangaInfoHeaderAdapter(
                     binding.mangaInfoToggleLess.clicks()
                 )
                     .onEach { toggleMangaInfo() }
-                    .launchIn(scope)
+                    .launchIn(controller.viewScope)
 
                 // Expand manga info if navigated from source listing
                 if (initialLoad && fromSource) {
                     toggleMangaInfo()
                     initialLoad = false
                 }
+            }
+
+            // backgroundTint attribute doesn't work properly on Android 5
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
+                listOf(binding.backdropOverlay, binding.mangaInfoToggleMoreScrim)
+                    .forEach {
+                        @Suppress("DEPRECATION")
+                        it.background.setColorFilter(
+                            view.context.getResourceColor(android.R.attr.colorBackground),
+                            PorterDuff.Mode.SRC_ATOP
+                        )
+                    }
             }
         }
 

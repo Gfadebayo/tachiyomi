@@ -13,7 +13,7 @@
     <string name="label_recent_updates">Apdejti</string>
     <string name="label_categories">Kategorije</string>
     <string name="label_backup">Rezerva</string>
-    <string name="label_migration">Migracija izvora</string>
+    <string name="label_migration">Migracija</string>
     <string name="label_extensions">Dodaci</string>
     <string name="label_extension_info">Informacije o dodatku</string>
     <string name="action_settings">Podešavanja</string>
@@ -98,12 +98,10 @@
     <string name="update_24hour">Dnevno</string>
     <string name="update_48hour">Svaka 2 dana</string>
     <string name="update_weekly">Nedeljno</string>
-    <string name="update_monthly">Mjesečno</string>
     <string name="pref_library_update_categories">Kategorije koje su ubrajane u globalnom ažuriranju</string>
     <string name="all">Sve</string>
     <string name="pref_library_update_restriction">Restrikcije ažuriranja biblioteke</string>
     <string name="pref_library_update_restriction_summary">Ažuriraj samo kada su uslovi zadovoljeni</string>
-    <string name="wifi">Wi-Fi</string>
     <string name="charging">Punjenje</string>
     <string name="pref_update_only_non_completed">Samo ažuriraj mangu koja je u toku</string>
     <string name="pref_auto_update_manga_sync">Sinhronizuj poglavlja nakon čitanja</string>
@@ -125,9 +123,9 @@
     <string name="ext_available">Dostupno</string>
     <string name="untrusted_extension">Nepouzdan dodatak</string>
     <string name="untrusted_extension_message">Ova ekstenzija je potpisana nepovjerljivim sertifikatima i nije aktivirana,.
-\n 
-\nŠtetne ekstenzije mogu čitati podatke o prijavi sačuvane u Tachiyomi-u ili pokrenuti proizvoljan kod. 
-\n 
+\n
+\nŠtetne ekstenzije mogu čitati podatke o prijavi sačuvane u Tachiyomi-u ili pokrenuti proizvoljan kod.
+\n
 \nVerujući ovom sertifikatu vi prihvatate ove rizike.</string>
     <string name="ext_version_info">Verzija: %1$s</string>
     <string name="ext_language_info">Jezik: %1$s</string>
@@ -288,7 +286,7 @@
     <string name="download_all">Sve</string>
     <string name="download_unread">Nepročitano</string>
     <string name="confirm_delete_chapters">Da li ste sigurni da želite da obrišete sledeća poglavlja\?</string>
-    <string name="action_open_in_web_view">Otvori u Web pregledu</string>
+    <string name="action_open_in_web_view">Otvori u WebView</string>
     <string name="pref_true_color">32-bitna boja</string>
     <string name="pref_skip_read_chapters">Preskoči poglavlja označena kao pročitana</string>
     <string name="filter_mode_default">Normalno</string>
@@ -311,11 +309,11 @@
     <string name="action_sort_latest_chapter">Poslednje poglavlje</string>
     <string name="action_view_chapters">Pogledaj poglavlja</string>
     <string name="action_cancel_all">Otkaži sve</string>
-    <string name="pref_theme_mode">Tema aplikacije</string>
-    <string name="theme_light">Svetlo</string>
-    <string name="theme_dark">Tamno</string>
+    <string name="pref_theme_mode">Tamna tema</string>
+    <string name="theme_light">Isključeno</string>
+    <string name="theme_dark">Upaljeno</string>
     <string name="theme_system">Prati sistem</string>
-    <string name="pref_theme_dark">Varijanta tamne teme</string>
+    <string name="pref_theme_dark">Tamna tema</string>
     <string name="theme_dark_default">Normalno</string>
     <string name="theme_dark_blue">Tamno plavo</string>
     <string name="theme_dark_amoled">AMOLED crno</string>
@@ -337,9 +335,9 @@
     <string name="pref_disable_battery_optimization">Isključi optimizaciju korišćenja baterije</string>
     <string name="battery_optimization_disabled">Optimizacija potročnje baterije je već isključena</string>
     <string name="email">Imejl adresa</string>
-    <string name="information_empty_library">Tvoja biblioteka je prazna, dodaj neku serijal iz izvora.</string>
-    <string name="information_no_recent_manga">Nema nedavno čitane mange</string>
-    <string name="information_no_recent">Nema nedavnih poglavlja</string>
+    <string name="information_empty_library">Tvoja biblioteka je prazna, dodaj neku serijal iz pretrage.</string>
+    <string name="information_no_recent_manga">Nema nedavno čitanih stvari</string>
+    <string name="information_no_recent">Nema nedavnih promjena</string>
     <string name="information_no_downloads">Nema preuzimanja</string>
     <string name="label_sources">Izvori</string>
     <string name="pref_enable_automatic_extension_updates">Provjeri da li ima ažuriranja dodataka</string>
@@ -350,7 +348,7 @@
     <string name="pref_confirm_exit">Potvrdi izlaz</string>
     <string name="theme_light_blue">Svetlo plava</string>
     <string name="theme_light_default">Podrazumevano</string>
-    <string name="pref_theme_light">Varijanta svetle teme</string>
+    <string name="pref_theme_light">Svijetla tema</string>
     <string name="action_move_to_bottom">Premesti na dno</string>
     <string name="action_move_to_top">Premesti na vrh</string>
     <string name="action_oldest">Najstarije</string>
@@ -416,8 +414,6 @@
     <string name="error_invalid_date_supplied">Netačni datum je unet</string>
     <string name="track_author">Autor</string>
     <string name="track_type">Tip</string>
-    <string name="track_finished_reading_date">Datum završetka čitanja</string>
-    <string name="track_started_reading_date">Datum početka čitanja</string>
     <string name="track_start_date">Započeo</string>
     <string name="track_status">Status</string>
     <string name="status">Status</string>
@@ -494,4 +490,35 @@
     <string name="notification_not_connected_to_ac_title">Sinhronizacija otkazana</string>
     <string name="notification_first_add_to_library">Molimo dodajte mangu u svoju biblioteku pre nego što to uradite</string>
     <string name="notification_cover_update_failed">Ažuriranje omota nije uspelo</string>
+    <string name="pref_hide_bottom_bar_on_scroll">Sakrij donji bar</string>
+    <string name="pref_category_theme">Tema</string>
+    <string name="action_sort_descending">Silazno</string>
+    <string name="action_disable">Onemogući</string>
+    <string name="action_display_show_tabs">Prikaži naslove umetaka</string>
+    <string name="action_display_unread_badge">Oznaka za nepročitano</string>
+    <string name="action_display_comfortable_grid">Šira mreža</string>
+    <string name="action_migrate">Migriraj</string>
+    <string name="action_open_in_settings">Otvori u Podešavanjima</string>
+    <string name="action_start">Počni</string>
+    <string name="action_disable_all">Onemogući sve</string>
+    <string name="action_enable_all">Omogući sve</string>
+    <string name="action_download_unread">Preuzmi nepročitana poglavlja</string>
+    <string name="action_search_settings">Podešavanja pretrage</string>
+    <string name="action_sort_date_added">Datum dodavanja</string>
+    <string name="pref_show_reading_mode">Prikaži mod čitanja</string>
+    <string name="ext_nsfw_warning">Možda sadrži 18+ sadržaj</string>
+    <string name="ext_nsfw_short">18+</string>
+    <string name="unofficial_extension_message">Ovaj dodatak nije iz oficijalne liste Tachiyomi dodataka.</string>
+    <string name="ext_unofficial">Neoficijalno</string>
+    <plurals name="num_categories">
+        <item quantity="one">%d kategorija</item>
+        <item quantity="few">%d kategorije</item>
+        <item quantity="other"/>
+    </plurals>
+    <string name="pref_library_update_error_notification">Prikaži greške pri ažuriranju u obavještenju</string>
+    <string name="pref_library_update_refresh_metadata_summary">Provjeri da li postoje nove pozadine kada ažuriraš biblioteku</string>
+    <string name="pref_library_update_refresh_metadata">Automatski osvježi metadata</string>
+    <string name="pref_jump_to_chapters">Idi na poglevlje sa otvaranjem</string>
+    <string name="parental_controls_info">Ovo ne znači da će svi potencijalno neoficijalni ili pogrešno označeni dodaci koji sadrže 18+ sadržaj biti uklonjeni.</string>
+    <string name="pref_category_locale">Jezik</string>
 </resources>

@@ -4,18 +4,21 @@ import android.os.Bundle
 import com.jakewharton.rxrelay.BehaviorRelay
 import eu.kanade.tachiyomi.data.database.models.Manga
 import eu.kanade.tachiyomi.data.database.models.MangaCategory
+import eu.kanade.tachiyomi.data.database.models.toMangaInfo
 import eu.kanade.tachiyomi.source.CatalogueSource
 import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.model.SChapter
 import eu.kanade.tachiyomi.source.model.SManga
+import eu.kanade.tachiyomi.source.model.toSChapter
 import eu.kanade.tachiyomi.ui.browse.migration.MigrationFlags
 import eu.kanade.tachiyomi.ui.browse.source.globalsearch.GlobalSearchCardItem
 import eu.kanade.tachiyomi.ui.browse.source.globalsearch.GlobalSearchItem
 import eu.kanade.tachiyomi.ui.browse.source.globalsearch.GlobalSearchPresenter
 import eu.kanade.tachiyomi.util.chapter.syncChaptersWithSource
-import rx.Observable
-import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
+import eu.kanade.tachiyomi.util.lang.launchIO
+import eu.kanade.tachiyomi.util.lang.launchUI
+import eu.kanade.tachiyomi.util.lang.withUIContext
+import eu.kanade.tachiyomi.util.system.toast
 import java.util.Date
 
 class SearchPresenter(
@@ -54,14 +57,18 @@ class SearchPresenter(
 
         replacingMangaRelay.call(true)
 
-        Observable.defer { source.fetchChapterList(manga) }
-            .onErrorReturn { emptyList() }
-            .doOnNext { migrateMangaInternal(source, it, prevManga, manga, replace) }
-            .onErrorReturn { emptyList() }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnUnsubscribe { replacingMangaRelay.call(false) }
-            .subscribe()
+        presenterScope.launchIO {
+            try {
+                val chapters = source.getChapterList(manga.toMangaInfo())
+                    .map { it.toSChapter() }
+
+                migrateMangaInternal(source, chapters, prevManga, manga, replace)
+            } catch (e: Throwable) {
+                withUIContext { view?.applicationContext?.toast(e.message) }
+            }
+
+            presenterScope.launchUI { replacingMangaRelay.call(false) }
+        }
     }
 
     private fun migrateMangaInternal(
@@ -97,7 +104,7 @@ class SearchPresenter(
                 val prevMangaChapters = db.getChapters(prevManga).executeAsBlocking()
                 val maxChapterRead = prevMangaChapters
                     .filter { it.read }
-                    .maxBy { it.chapter_number }?.chapter_number
+                    .maxByOrNull { it.chapter_number }?.chapter_number
                 val bookmarkedChapters = prevMangaChapters
                     .filter { it.bookmark && it.isRecognizedNumber }
                     .map { it.chapter_number }

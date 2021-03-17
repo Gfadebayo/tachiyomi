@@ -1,10 +1,8 @@
 package eu.kanade.tachiyomi.ui.more
 
 import android.app.Dialog
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.preference.PreferenceScreen
 import com.afollestad.materialdialogs.MaterialDialog
@@ -15,6 +13,7 @@ import eu.kanade.tachiyomi.data.updater.UpdateResult
 import eu.kanade.tachiyomi.data.updater.UpdaterService
 import eu.kanade.tachiyomi.data.updater.github.GithubUpdateChecker
 import eu.kanade.tachiyomi.ui.base.controller.DialogController
+import eu.kanade.tachiyomi.ui.base.controller.openInBrowser
 import eu.kanade.tachiyomi.ui.setting.SettingsController
 import eu.kanade.tachiyomi.util.lang.launchNow
 import eu.kanade.tachiyomi.util.lang.toDateTimestampString
@@ -33,9 +32,6 @@ import java.util.TimeZone
 
 class AboutController : SettingsController() {
 
-    /**
-     * Checks for new releases
-     */
     private val updateChecker by lazy { GithubUpdateChecker() }
 
     private val dateFormat: DateFormat = preferences.dateFormat()
@@ -75,23 +71,19 @@ class AboutController : SettingsController() {
 
             onClick {
                 val url = if (BuildConfig.DEBUG) {
-                    "https://github.com/inorichi/tachiyomi/commits/dev"
+                    "https://github.com/tachiyomiorg/tachiyomi-preview/releases/tag/r${BuildConfig.COMMIT_COUNT}"
                 } else {
-                    "https://github.com/inorichi/tachiyomi/releases/tag/v${BuildConfig.VERSION_NAME}"
+                    "https://github.com/tachiyomiorg/tachiyomi/releases/tag/v${BuildConfig.VERSION_NAME}"
                 }
-
-                val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-                startActivity(intent)
+                openInBrowser(url)
             }
         }
         if (BuildConfig.DEBUG) {
             preference {
                 key = "pref_about_notices"
                 titleRes = R.string.notices
-
                 onClick {
-                    val intent = Intent(Intent.ACTION_VIEW, "https://github.com/inorichi/tachiyomi/blob/dev/PREVIEW_RELEASE_NOTES.md".toUri())
-                    startActivity(intent)
+                    openInBrowser("https://github.com/tachiyomiorg/tachiyomi/blob/master/PREVIEW_RELEASE_NOTES.md")
                 }
             }
         }
@@ -100,47 +92,46 @@ class AboutController : SettingsController() {
             preference {
                 key = "pref_about_website"
                 titleRes = R.string.website
-                val url = "https://tachiyomi.org"
-                summary = url
-                onClick {
-                    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-                    startActivity(intent)
+                "https://tachiyomi.org".also {
+                    summary = it
+                    onClick { openInBrowser(it) }
+                }
+            }
+            preference {
+                key = "pref_about_twitter"
+                title = "Twitter"
+                "https://twitter.com/tachiyomiorg".also {
+                    summary = it
+                    onClick { openInBrowser(it) }
                 }
             }
             preference {
                 key = "pref_about_discord"
                 title = "Discord"
-                val url = "https://discord.gg/tachiyomi"
-                summary = url
-                onClick {
-                    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-                    startActivity(intent)
+                "https://discord.gg/tachiyomi".also {
+                    summary = it
+                    onClick { openInBrowser(it) }
                 }
             }
             preference {
                 key = "pref_about_github"
                 title = "GitHub"
-                val url = "https://github.com/inorichi/tachiyomi"
-                summary = url
-                onClick {
-                    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-                    startActivity(intent)
+                "https://github.com/tachiyomiorg/tachiyomi".also {
+                    summary = it
+                    onClick { openInBrowser(it) }
                 }
             }
             preference {
                 key = "pref_about_label_extensions"
                 titleRes = R.string.label_extensions
-                val url = "https://github.com/inorichi/tachiyomi-extensions"
-                summary = url
-                onClick {
-                    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-                    startActivity(intent)
+                "https://github.com/tachiyomiorg/tachiyomi-extensions".also {
+                    summary = it
+                    onClick { openInBrowser(it) }
                 }
             }
             preference {
                 key = "pref_about_licenses"
                 titleRes = R.string.licenses
-
                 onClick {
                     LibsBuilder()
                         .withActivityTitle(activity!!.getString(R.string.licenses))

@@ -4,8 +4,6 @@ import com.tfcporciuncula.flow.Preference
 import eu.kanade.tachiyomi.data.preference.PreferenceValues.TappingInvertMode
 import eu.kanade.tachiyomi.data.preference.PreferencesHelper
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -13,9 +11,7 @@ import kotlinx.coroutines.flow.onEach
 /**
  * Common configuration for all viewers.
  */
-abstract class ViewerConfig(preferences: PreferencesHelper) {
-
-    private val scope = CoroutineScope(Job() + Dispatchers.Main)
+abstract class ViewerConfig(preferences: PreferencesHelper, private val scope: CoroutineScope) {
 
     var imagePropertyChangedListener: (() -> Unit)? = null
 
@@ -28,13 +24,21 @@ abstract class ViewerConfig(preferences: PreferencesHelper) {
     var volumeKeysInverted = false
     var trueColor = false
     var alwaysShowChapterTransition = true
+    var navigationMode = 0
+        protected set
+
+    var dualPageSplit = false
+        protected set
+
+    var dualPageInvert = false
+        protected set
+
+    abstract var navigator: ViewerNavigation
+        protected set
 
     init {
         preferences.readWithTapping()
             .register({ tappingEnabled = it })
-
-        preferences.readWithTappingInverted()
-            .register({ tappingInverted = it })
 
         preferences.readWithLongTap()
             .register({ longTapEnabled = it })
@@ -57,6 +61,10 @@ abstract class ViewerConfig(preferences: PreferencesHelper) {
         preferences.alwaysShowChapterTransition()
             .register({ alwaysShowChapterTransition = it })
     }
+
+    protected abstract fun defaultNavigation(): ViewerNavigation
+
+    abstract fun updateNavigation(navigationMode: Int)
 
     fun <T> Preference<T>.register(
         valueAssignment: (T) -> Unit,

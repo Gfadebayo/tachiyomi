@@ -35,6 +35,7 @@ import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.getPreferenceKey
 import eu.kanade.tachiyomi.ui.base.controller.NucleusController
 import eu.kanade.tachiyomi.ui.base.controller.ToolbarLiftOnScrollController
+import eu.kanade.tachiyomi.ui.base.controller.openInBrowser
 import eu.kanade.tachiyomi.ui.base.controller.withFadeTransaction
 import eu.kanade.tachiyomi.util.preference.DSL
 import eu.kanade.tachiyomi.util.preference.onChange
@@ -134,7 +135,7 @@ class ExtensionDetailsController(bundle: Bundle? = null) :
                                             isChecked = enabled
                                             sourcePrefs.forEach { pref -> pref.isVisible = enabled }
                                         }
-                                        .launchIn(scope)
+                                        .launchIn(viewScope)
                                 }
 
                                 // Source enable/disable
@@ -175,10 +176,13 @@ class ExtensionDetailsController(bundle: Bundle? = null) :
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.extension_details, menu)
+
+        menu.findItem(R.id.action_history).isVisible = presenter.extension?.isUnofficial == false
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.action_history -> openCommitHistory()
             R.id.action_enable_all -> toggleAllSources(true)
             R.id.action_disable_all -> toggleAllSources(false)
             R.id.action_open_in_settings -> openInSettings()
@@ -202,6 +206,16 @@ class ExtensionDetailsController(bundle: Bundle? = null) :
         }
     }
 
+    private fun openCommitHistory() {
+        val pkgName = presenter.extension!!.pkgName.substringAfter("eu.kanade.tachiyomi.extension.")
+        val pkgFactory = presenter.extension!!.pkgFactory
+        val url = when {
+            !pkgFactory.isNullOrEmpty() -> "$URL_EXTENSION_COMMITS/multisrc/src/main/java/eu/kanade/tachiyomi/multisrc/$pkgFactory"
+            else -> "$URL_EXTENSION_COMMITS/src/${pkgName.replace(".", "/")}"
+        }
+        openInBrowser(url)
+    }
+
     private fun openInSettings() {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             data = Uri.fromParts("package", presenter.pkgName, null)
@@ -221,5 +235,7 @@ class ExtensionDetailsController(bundle: Bundle? = null) :
 
     private companion object {
         const val PKGNAME_KEY = "pkg_name"
+
+        private const val URL_EXTENSION_COMMITS = "https://github.com/tachiyomiorg/tachiyomi-extensions/commits/master"
     }
 }

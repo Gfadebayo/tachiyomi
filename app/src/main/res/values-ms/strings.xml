@@ -29,8 +29,8 @@
     <string name="action_mark_as_unread">Tandakan sebagai belum dibaca</string>
     <string name="action_mark_previous_as_read">Tandakan yang sebelum sebagai sudah dibaca</string>
     <string name="action_download">Muat turun</string>
-    <string name="action_bookmark">Penanda</string>
-    <string name="action_remove_bookmark">Buang penanda</string>
+    <string name="action_bookmark">Penanda bab</string>
+    <string name="action_remove_bookmark">Buang penanda bab</string>
     <string name="action_delete">Padam</string>
     <string name="action_update">Kemas kini</string>
     <string name="action_update_library">Kemas kini pustaka</string>
@@ -94,12 +94,10 @@
     <string name="update_24hour">Setiap hari</string>
     <string name="update_48hour">Setiap 2 hari</string>
     <string name="update_weekly">Setiap minggu</string>
-    <string name="update_monthly">Setiap bulan</string>
     <string name="pref_library_update_categories">Kategori bagi kemas kini keseluruhan</string>
     <string name="all">Semua</string>
     <string name="pref_library_update_restriction">Batasan kemas kini pustaka</string>
     <string name="pref_library_update_restriction_summary">Kemas kini hanya apabila syarat dipenuhi</string>
-    <string name="wifi">Wi-Fi</string>
     <string name="charging">Ketika mengecas</string>
     <string name="pref_update_only_non_completed">Hanya kemas kini manga yang masih berterusan</string>
     <string name="pref_auto_update_manga_sync">Kemas kini bab selepas dibaca</string>
@@ -191,7 +189,7 @@
     <string name="choices_reset">Pilihan dialog diset semula</string>
     <string name="pref_clear_database">Hapus pangkalan data</string>
     <string name="pref_clear_database_summary">Hapus sejarah manga yang tidak disimpan di dalam pustaka</string>
-    <string name="clear_database_confirmation">Adakah anda pasti\? Status bab dibaca dan progres bacaan manga yang tidak ada di dalam pustaka akan hilang</string>
+    <string name="clear_database_confirmation">Adakah anda pasti\? Bab dibaca dan kemajuan manga bukan-pustaka akan hilang</string>
     <string name="clear_database_completed">Pangkalan data dihapuskan</string>
     <string name="pref_refresh_library_tracking">Segar semula penjejakan</string>
     <string name="pref_refresh_library_tracking_summary">Kemas kini status, skor dan bab terakhir dibaca dari perkhidmatan penjejakan</string>
@@ -214,7 +212,7 @@
     <string name="select_source">Pilih sumber</string>
     <string name="no_valid_sources">Sila aktifkan sekurang-kurangnya satu sumber yang sah</string>
     <string name="no_more_results">Tiada lagi hasil</string>
-    <string name="local_source">Sumber setempat</string>
+    <string name="local_source">Sumber lokal</string>
     <string name="other_source">Lain</string>
     <string name="invalid_combination">Lalai tidak boleh dipilih bersama kategori lain</string>
     <string name="added_to_library">Manga ini telah ditambahkan ke pustaka anda</string>
@@ -350,7 +348,7 @@
     <string name="manga_info_full_title_label">Tajuk</string>
     <string name="manga_added_library">Ditambah ke pustaka</string>
     <string name="manga_removed_library">Dibuang dari pustaka</string>
-    <string name="copied_to_clipboard">Disalin ke papan keratan: 
+    <string name="copied_to_clipboard">Disalin ke papan keratan:
 \n%1$s</string>
     <string name="source_not_installed">Sumber tidak dipasang: %1$s</string>
     <string name="custom_download">Muat turun jumlah tersuai</string>
@@ -477,8 +475,6 @@
     <string name="information_webview_required">WebView diperlukan untuk Tachiyomi</string>
     <string name="recent_manga_time">Bab %1$s - %2$s</string>
     <string name="error_invalid_date_supplied">Tarikh dimasukkan tidak sah</string>
-    <string name="track_finished_reading_date">Tarikh selesai membaca</string>
-    <string name="track_started_reading_date">Tarikh mula membaca</string>
     <string name="add_tracking">Tambah penjejakan</string>
     <string name="manga_info_collapse">Tutup</string>
     <string name="manga_info_expand">Buka</string>
@@ -503,7 +499,7 @@
     <string name="label_downloaded_only">Dimuat turun sahaja</string>
     <string name="last_used_source">Terakhir digunakan</string>
     <string name="check_for_updates">Semak untuk pengemaskinian</string>
-    <string name="local_source_help_guide">Panduan penggunaan sumber tempatan</string>
+    <string name="local_source_help_guide">Panduan penggunaan sumber lokal</string>
     <string name="restore_duration">%02d minit, %02d saat</string>
     <string name="downloaded_only_summary">Tapis semua manga di dalam pustaka anda</string>
     <plurals name="download_queue_summary">
@@ -558,8 +554,7 @@
     </plurals>
     <string name="action_sort_descending">Menurun</string>
     <string name="action_disable">Matikan</string>
-    <string name="pref_dns_over_https_summary">Mula semula diperlukan untuk berkesan</string>
-    <string name="pref_dns_over_https" translatable="false">DNS melalui HTTPS (Cloudflare)</string>
+    <string name="requires_app_restart">Mula semula diperlukan untuk berkesan</string>
     <string name="label_network">Rangkaian</string>
     <string name="pref_jump_to_chapters">Terus ke bab bila buka</string>
     <string name="tapping_inverted_both">Kedua-dua</string>
@@ -589,21 +584,15 @@
     <string name="channel_complete">Selesai</string>
     <string name="channel_errors">Ralat</string>
     <string name="backup_restore_missing_trackers">Penjejak yang tidak dilog masuk:</string>
-    <string name="pref_allow_nsfw_sources">Sumber 18+ tahun keatas</string>
-    <string name="pref_allow_nsfw_sources_blocked">Disekat</string>
-    <string name="pref_allow_nsfw_sources_allowed_multisource">Sekat melayari sumber tetapi tunjuk dalam senarai sambungan</string>
-    <string name="pref_allow_nsfw_sources_allowed">Dibenarkan</string>
     <string name="pref_remove_bookmarked_chapters">Padam bab yang ditanda</string>
     <string name="pref_category_delete_chapters">Padam bab</string>
     <string name="ext_nsfw_warning">Mungkin mengandungi kandungan 18+ tahun keatas</string>
     <string name="ext_nsfw_short">18+</string>
-    <string name="pref_category_parental_controls">Kawalan ibu bapa</string>
     <string name="parental_controls_info">Ini tidak menghalang sambungan yang tidak rasmi atau berpotensi tidak menggunakan tetapan yang betul daripada menayangkan kandungan 18+ tahun keatas dalam aplikasi.</string>
     <plurals name="missing_chapters_warning">
         <item quantity="other">Ada %d bab yang hilang</item>
     </plurals>
     <string name="no_chapters_error">Tiada bab dijumpai</string>
-    <string name="action_web_view">WebView</string>
     <string name="chapter_settings_updated">Tetapan bab lalai dikemaskini</string>
     <string name="set_chapter_settings_as_default">Tetapkan sebagai lalai</string>
     <string name="also_set_chapter_settings_for_library">Gunakan juga untuk semua manga dalam pustaka</string>
@@ -620,4 +609,44 @@
     <string name="pref_clear_history">Padamkan sejarah</string>
     <string name="clear_history_confirmation">Anda pasti\? Semua sejarah akan hilang.</string>
     <string name="clear_history_completed">Sejarah dipadamkan</string>
+    <string name="spen_next_page">Halaman seterusnya</string>
+    <string name="spen_previous_page">Halaman terdahulu</string>
+    <string name="full_restore_offline">Pulih secara luar talian, selesai dengan cepat tetapi hanya ada apa yang ada dalam fail sandaran</string>
+    <string name="full_restore_online">Pulih secara dalam talian, ia perlahan tetapi memberikan maklumat and bab</string>
+    <string name="full_restore_mode">Mod Rangkaian</string>
+    <string name="pref_backup_auto_create_legacy">Buat juga sandaran legasi</string>
+    <string name="pref_create_legacy_backup_summary">Boleh digunakan pada versi Tachiyomi yang</string>
+    <string name="pref_create_legacy_backup">Buat sandaran legasi</string>
+    <string name="migration_help_guide">Panduan memindahkan sumber</string>
+    <string name="invalid_backup_file_type">Jenis fail sandaran tidak sah: %1$s\t
+\nIa sepatutnya berakhir dengan .proto.gz atau .json.</string>
+    <string name="pref_category_nsfw_content">Sumber NSFW (18+)</string>
+    <string name="pref_label_nsfw_extension">Label dalam senarai</string>
+    <string name="pref_show_nsfw_extension">Tunjuk dalam senarai sambungan</string>
+    <string name="pref_show_nsfw_source">Tunjuk dalam senarai sumber</string>
+    <string name="file_picker_error">Tiada aplikasi memilih fail</string>
+    <string name="myanimelist_creds_missing">Kelayakan log masuk MAL tidak dijumpai</string>
+    <string name="myanimelist_relogin">Sila log masuk ke MAL sekali lagi</string>
+    <string name="default_nav">Lalai</string>
+    <string name="pref_viewer_nav">Tataletak navigasi</string>
+    <string name="edge_nav">isi</string>
+    <string name="kindlish_nav">Serupa Kindle</string>
+    <string name="l_nav">Bentuk L</string>
+    <string name="action_desc">Menurun</string>
+    <string name="action_asc">Menaik</string>
+    <string name="action_order_by_chapter_number">Mengikut nombor bab</string>
+    <string name="action_order_by_upload_date">Mengikut tarikh muat naik</string>
+    <string name="channel_crash_logs">Log kerosakan</string>
+    <string name="crash_log_saved">Log kerosakan disimpan</string>
+    <string name="pref_dump_crash_logs_summary">Simpan log ralat untuk dikongsi dengan pembangunan aplikasi</string>
+    <string name="pref_dump_crash_logs">Kumpulan log kerosakan</string>
+    <string name="network_unmetered">Rangkaian tidak bermeter</string>
+    <string name="track_started_reading_date">Tarikh mula membaca</string>
+    <string name="track_finished_reading_date">Tarikh selesai membaca</string>
+    <string name="action_filter_tracked">Dijejaki</string>
+    <string name="action_display_show_number_of_items">Tunjuk jumlah bilangan</string>
+    <string name="right_and_left_nav">Kanan dan kiri</string>
+    <string name="pref_dual_page_split">Memisah dua muka surat (ALPHA)</string>
+    <string name="pref_dual_page_invert_summary">Jika kedudukan memisah dua muka surat tidak sama dengan arah membaca</string>
+    <string name="pref_dual_page_invert">Songsangkan kedudukan memisah muka surat</string>
 </resources>

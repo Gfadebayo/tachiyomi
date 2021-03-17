@@ -94,12 +94,10 @@
     <string name="update_24hour">Zilnic</string>
     <string name="update_48hour">La fiecare 2 zile</string>
     <string name="update_weekly">Săptămânal</string>
-    <string name="update_monthly">In fiecare lună</string>
     <string name="pref_library_update_categories">Categorii de inclus în actualizarea globală</string>
     <string name="all">Toate</string>
     <string name="pref_library_update_restriction">Restricții actualizare bibliotecă</string>
     <string name="pref_library_update_restriction_summary">Actualizează doar când condițiile sunt împlinite</string>
-    <string name="wifi">Wi-Fi</string>
     <string name="charging">Se încarcă</string>
     <string name="pref_update_only_non_completed">Actualizați doar manga în desfășurare</string>
     <string name="pref_auto_update_manga_sync">Actualizați progresul capitolului după citire</string>
@@ -369,7 +367,7 @@
     <string name="download_notifier_download_paused">Descărcare întreruptă</string>
     <string name="channel_common">General</string>
     <string name="channel_library">Bibliotecă</string>
-    <string name="action_open_in_web_view">Deschide în vizualizare web</string>
+    <string name="action_open_in_web_view">Deschide în WebView</string>
     <string name="pref_true_color">Culoare 32-bit</string>
     <string name="pref_color_filter_mode">Mod filtru de culoare</string>
     <string name="filter_mode_default">Implicit</string>
@@ -506,8 +504,6 @@
     <string name="confirm_exit">Apăsați din nou pentru a ieși</string>
     <string name="label_downloaded_only">Doar descărcate</string>
     <string name="error_invalid_date_supplied">Data furnizată este invalidă</string>
-    <string name="track_finished_reading_date">Data la care s-a terminat citirea</string>
-    <string name="track_started_reading_date">Data la care s-a început citirea</string>
     <string name="restoring_backup_canceled">Restaurare anulată</string>
     <string name="restore_in_progress">Restaurarea este deja în curs de desfășurare</string>
     <string name="backup_in_progress">Crearea copiei de rezervă este deja în curs de desfășurare</string>
@@ -575,8 +571,7 @@
         <item quantity="few">%1$s capitole</item>
         <item quantity="other">%1$s de capitole</item>
     </plurals>
-    <string name="pref_dns_over_https_summary">Necesită restartarea aplicației pentru a avea efect</string>
-    <string name="pref_dns_over_https" translatable="false">DNS prin HTTPS (Cloudflare)</string>
+    <string name="requires_app_restart">Necesită repornirea aplicației pentru a avea efect</string>
     <string name="action_sort_descending">Descrescător</string>
     <string name="action_disable">Dezactivați</string>
     <string name="action_open_in_settings">Deschideți în Setări</string>
@@ -606,8 +601,8 @@
     <string name="download_notifier_download_finish">Descărcare terminată</string>
     <plurals name="num_trackers">
         <item quantity="one">Un tracker</item>
-        <item quantity="few">Câteva trackere</item>
-        <item quantity="other">Câteva trackere</item>
+        <item quantity="few">%d trackere</item>
+        <item quantity="other">%d trackere</item>
     </plurals>
     <string name="backup_restore_missing_trackers">Trackerele nu sunt conectate la:</string>
     <string name="pref_remove_bookmarked_chapters">Ștergeți capitolele marcate</string>
@@ -615,11 +610,6 @@
     <string name="ext_nsfw_warning">Poate conține conținut 18+</string>
     <string name="ext_nsfw_short">Peste 18</string>
     <string name="parental_controls_info">Acest lucru nu împiedică extensiile neoficiale sau potențial semnalizate incorect să iasă la suprafață cu conținut 18+ în cadrul aplicației.</string>
-    <string name="pref_allow_nsfw_sources_blocked">Blocat</string>
-    <string name="pref_allow_nsfw_sources_allowed_multisource">Blocați sursele de navigare, dar se afișează în lista de extensii</string>
-    <string name="pref_allow_nsfw_sources_allowed">Permis</string>
-    <string name="pref_allow_nsfw_sources">Surse 18+</string>
-    <string name="pref_category_parental_controls">Control parental</string>
     <string name="no_pinned_sources">Nu aveți surse fixate</string>
     <string name="no_chapters_error">Nu a fost găsit niciun capitol</string>
     <plurals name="missing_chapters_warning">
@@ -636,6 +626,28 @@
     <string name="downloaded_chapters">Capitole descărcate</string>
     <string name="manga_from_library">Manga din bibliotecă</string>
     <string name="pref_hide_bottom_bar_on_scroll">Ascundeți bara de jos când faceți scroll</string>
-    <string name="action_web_view">Webview</string>
     <string name="action_search_settings">Setări de căutare</string>
+    <string name="pref_incognito_mode_summary">Întrerupe citirea istoricului</string>
+    <string name="pref_incognito_mode">Modul incognito</string>
+    <string name="pref_clear_history_summary">Ștergeți istoricul de lectură pentru toate manga</string>
+    <string name="pref_clear_history">Sterge istoricul</string>
+    <string name="clear_history_confirmation">Esti sigur\? Toată istoria se va pierde.</string>
+    <string name="clear_history_completed">Istoric șters</string>
+    <string name="spen_next_page">Pagina următoare</string>
+    <string name="spen_previous_page">Pagina anterioară</string>
+    <string name="migration_help_guide">Ghid de migrare a sursei</string>
+    <string name="invalid_backup_file_type">Fișierul copiei de rezervă este nevalid: %1$s</string>
+    <string name="full_restore_offline">Restaurare offline, se termină rapid, dar conține numai ceea ce are copia de rezervă</string>
+    <string name="full_restore_online">Restaurați online, mult mai lent, dar vă oferă mai multe informații și capitole actualizate</string>
+    <string name="full_restore_mode">Mod rețea</string>
+    <string name="pref_backup_auto_create_legacy">De asemenea, creați copii de rezervă de moștenire</string>
+    <string name="pref_create_legacy_backup_summary">Poate fi utilizat în versiuni mai vechi de Tachiyomi</string>
+    <string name="pref_create_legacy_backup">Crează copie de rezervă de moștenire</string>
+    <string name="pref_category_nsfw_content">Conținut NSFW (18+)</string>
+    <string name="pref_label_nsfw_extension">Etichetează în lista extensiilor</string>
+    <string name="pref_show_nsfw_extension">Arată în lista extensiilor</string>
+    <string name="pref_show_nsfw_source">Arată în lista surselor</string>
+    <string name="file_picker_error">Nicio aplicație de ales fișiere nu a fost găsite</string>
+    <string name="myanimelist_relogin">Te rugăm să te loghezi la MAL din nou</string>
+    <string name="myanimelist_creds_missing">Datele de conectare la site-ul MAL nu au fost găsite</string>
 </resources>

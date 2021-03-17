@@ -19,12 +19,9 @@ import eu.kanade.tachiyomi.data.database.models.Category
 import eu.kanade.tachiyomi.databinding.CategoriesControllerBinding
 import eu.kanade.tachiyomi.ui.base.controller.FabController
 import eu.kanade.tachiyomi.ui.base.controller.NucleusController
+import eu.kanade.tachiyomi.ui.main.MainActivity
 import eu.kanade.tachiyomi.util.system.toast
 import eu.kanade.tachiyomi.util.view.shrinkOnScroll
-import kotlinx.android.synthetic.main.main_activity.root_coordinator
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import reactivecircus.flowbinding.android.view.clicks
 
 /**
  * Controller to manage the categories for the users' library.
@@ -103,14 +100,13 @@ class CategoryController :
         actionFab = fab
         fab.setText(R.string.action_add)
         fab.setIconResource(R.drawable.ic_add_24dp)
-        fab.clicks()
-            .onEach {
-                CategoryCreateDialog(this@CategoryController).showDialog(router, null)
-            }
-            .launchIn(scope)
+        fab.setOnClickListener {
+            CategoryCreateDialog(this@CategoryController).showDialog(router, null)
+        }
     }
 
     override fun cleanupFab(fab: ExtendedFloatingActionButton) {
+        fab.setOnClickListener(null)
         actionFabScrollListener?.let { binding.recycler.removeOnScrollListener(it) }
         actionFab = null
     }
@@ -199,7 +195,7 @@ class CategoryController :
                 undoHelper = UndoHelper(adapter, this)
                 undoHelper?.start(
                     adapter.selectedPositions,
-                    activity!!.root_coordinator,
+                    (activity as? MainActivity)?.binding?.rootCoordinator!!,
                     R.string.snack_categories_deleted,
                     R.string.action_undo,
                     3000

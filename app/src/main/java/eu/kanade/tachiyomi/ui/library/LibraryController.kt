@@ -33,11 +33,9 @@ import eu.kanade.tachiyomi.ui.base.controller.TabbedController
 import eu.kanade.tachiyomi.ui.base.controller.withFadeTransaction
 import eu.kanade.tachiyomi.ui.browse.source.globalsearch.GlobalSearchController
 import eu.kanade.tachiyomi.ui.main.MainActivity
-import eu.kanade.tachiyomi.ui.main.offsetAppbarHeight
 import eu.kanade.tachiyomi.ui.manga.MangaController
 import eu.kanade.tachiyomi.util.system.getResourceColor
 import eu.kanade.tachiyomi.util.system.toast
-import kotlinx.android.synthetic.main.main_activity.tabs
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
@@ -122,7 +120,11 @@ class LibraryController(
 
     private var tabsVisibilityRelay: BehaviorRelay<Boolean> = BehaviorRelay.create(false)
 
+    private var mangaCountVisibilityRelay: BehaviorRelay<Boolean> = BehaviorRelay.create(false)
+
     private var tabsVisibilitySubscription: Subscription? = null
+
+    private var mangaCountVisibilitySubscription: Subscription? = null
 
     init {
         setHasOptionsMenu(true)
@@ -142,13 +144,27 @@ class LibraryController(
     }
 
     private fun updateTitle() {
-        if (preferences.categoryTabs().get()) {
-            currentTitle = resources?.getString(R.string.label_library)
+        val showCategoryTabs = preferences.categoryTabs().get()
+        val currentCategory = adapter?.categories?.getOrNull(binding.libraryPager.currentItem)
+
+        var title = if (showCategoryTabs) {
+            resources?.getString(R.string.label_library)
         } else {
-            adapter?.categories?.get(binding.libraryPager.currentItem)?.let {
-                currentTitle = it.name
+            currentCategory?.name
+        }
+
+        if (preferences.categoryNumberOfItems().get() && libraryMangaRelay.hasValue()) {
+            libraryMangaRelay.value.mangas.let { mangaMap ->
+                if (!showCategoryTabs) {
+                    title += " (${mangaMap[currentCategory?.id]?.size ?: 0})"
+                } else if (adapter?.categories?.size == 1) {
+                    // Only "Default" category
+                    title += " (${mangaMap[0]?.size ?: 0})"
+                }
             }
         }
+
+        currentTitle = title
     }
 
     override fun createPresenter(): LibraryPresenter {
@@ -171,13 +187,13 @@ class LibraryController(
                 activeCategory = it
                 updateTitle()
             }
-            .launchIn(scope)
+            .launchIn(viewScope)
 
         getColumnsPreferenceForCurrentOrientation().asImmediateFlow { mangaPerRow = it }
             .drop(1)
             // Set again the adapter to recalculate the covers height
             .onEach { reattachAdapter() }
-            .launchIn(scope)
+            .launchIn(viewScope)
 
         if (selectedMangas.isNotEmpty()) {
             createActionModeIfNeeded()
@@ -199,21 +215,22 @@ class LibraryController(
                     GlobalSearchController(query).withFadeTransaction()
                 )
             }
-            .launchIn(scope)
+            .launchIn(viewScope)
 
-        binding.actionToolbar.offsetAppbarHeight(activity!!)
+        (activity as? MainActivity)?.fixViewToBottom(binding.actionToolbar)
     }
 
     override fun onChangeStarted(handler: ControllerChangeHandler, type: ControllerChangeType) {
         super.onChangeStarted(handler, type)
         if (type.isEnter) {
-            activity?.tabs?.setupWithViewPager(binding.libraryPager)
+            (activity as? MainActivity)?.binding?.tabs?.setupWithViewPager(binding.libraryPager)
             presenter.subscribeLibrary()
         }
     }
 
     override fun onDestroyView(view: View) {
         destroyActionModeIfNeeded()
+        (activity as? MainActivity)?.clearFixViewToBottom(binding.actionToolbar)
         binding.actionToolbar.destroy()
         adapter?.onDestroy()
         adapter = null
@@ -236,6 +253,10 @@ class LibraryController(
             } else {
                 tabAnimator?.collapse()
             }
+        }
+        mangaCountVisibilitySubscription?.unsubscribe()
+        mangaCountVisibilitySubscription = mangaCountVisibilityRelay.subscribe {
+            adapter?.notifyDataSetChanged()
         }
     }
 
@@ -268,6 +289,9 @@ class LibraryController(
 
         // Set the categories
         adapter.categories = categories
+        adapter.itemsPerCategory = adapter.categories
+            .map { (it.id ?: -1) to (mangaMap[it.id]?.size ?: 0) }
+            .toMap()
 
         // Restore active category.
         binding.libraryPager.setCurrentItem(activeCat, false)
@@ -278,12 +302,15 @@ class LibraryController(
         // Delay the scroll position to allow the view to be properly measured.
         view.post {
             if (isAttached) {
-                activity?.tabs?.setScrollPosition(binding.libraryPager.currentItem, 0f, true)
+                (activity as? MainActivity)?.binding?.tabs?.setScrollPosition(binding.libraryPager.currentItem, 0f, true)
             }
         }
 
         // Send the manga map to child fragments after the adapter is updated.
         libraryMangaRelay.call(LibraryMangaEvent(mangaMap))
+
+        // Finally update the title
+        updateTitle()
     }
 
     /**
@@ -310,6 +337,7 @@ class LibraryController(
 
     private fun onTabsSettingsChanged() {
         tabsVisibilityRelay.call(preferences.categoryTabs().get() && adapter?.categories?.size ?: 0 > 1)
+        mangaCountVisibilityRelay.call(preferences.categoryNumberOfItems().get())
         updateTitle()
     }
 
@@ -393,7 +421,7 @@ class LibraryController(
                 query = it.toString()
                 performSearch()
             }
-            .launchIn(scope)
+            .launchIn(viewScope)
     }
 
     private fun performSearch() {

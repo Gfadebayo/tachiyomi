@@ -15,7 +15,7 @@ import uy.kohesive.injekt.injectLazy
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-internal class BackupNotifier(private val context: Context) {
+class BackupNotifier(private val context: Context) {
 
     private val preferences: PreferencesHelper by injectLazy()
 
@@ -60,25 +60,20 @@ internal class BackupNotifier(private val context: Context) {
         }
     }
 
-    fun showBackupComplete(unifile: UniFile) {
+    fun showBackupComplete(unifile: UniFile, isLegacyFormat: Boolean) {
         context.notificationManager.cancel(Notifications.ID_BACKUP_PROGRESS)
 
         with(completeNotificationBuilder) {
             setContentTitle(context.getString(R.string.backup_created))
-
-            if (unifile.filePath != null) {
-                setContentText(unifile.filePath)
-            }
+            setContentText(unifile.filePath ?: unifile.name)
 
             // Clear old actions if they exist
-            if (mActions.isNotEmpty()) {
-                mActions.clear()
-            }
+            clearActions()
 
             addAction(
                 R.drawable.ic_share_24dp,
                 context.getString(R.string.action_share),
-                NotificationReceiver.shareBackupPendingBroadcast(context, unifile.uri, Notifications.ID_BACKUP_COMPLETE)
+                NotificationReceiver.shareBackupPendingBroadcast(context, unifile.uri, isLegacyFormat, Notifications.ID_BACKUP_COMPLETE)
             )
 
             show(Notifications.ID_BACKUP_COMPLETE)
@@ -97,9 +92,7 @@ internal class BackupNotifier(private val context: Context) {
             setOnlyAlertOnce(true)
 
             // Clear old actions if they exist
-            if (mActions.isNotEmpty()) {
-                mActions.clear()
-            }
+            clearActions()
 
             addAction(
                 R.drawable.ic_close_24dp,
@@ -140,16 +133,14 @@ internal class BackupNotifier(private val context: Context) {
             setContentText(context.resources.getQuantityString(R.plurals.restore_completed_message, errorCount, timeString, errorCount))
 
             // Clear old actions if they exist
-            if (mActions.isNotEmpty()) {
-                mActions.clear()
-            }
+            clearActions()
 
             if (errorCount > 0 && !path.isNullOrEmpty() && !file.isNullOrEmpty()) {
                 val destFile = File(path, file)
                 val uri = destFile.getUriCompat(context)
 
                 addAction(
-                    R.drawable.nnf_ic_file_folder,
+                    R.drawable.ic_folder_24dp,
                     context.getString(R.string.action_open_log),
                     NotificationReceiver.openErrorLogPendingActivity(context, uri)
                 )
