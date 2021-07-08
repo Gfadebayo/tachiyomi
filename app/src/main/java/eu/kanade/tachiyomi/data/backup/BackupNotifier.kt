@@ -24,6 +24,7 @@ class BackupNotifier(private val context: Context) {
         setSmallIcon(R.drawable.ic_tachi)
         setAutoCancel(false)
         setOngoing(true)
+        setOnlyAlertOnce(true)
     }
 
     private val completeNotificationBuilder = context.notificationBuilder(Notifications.CHANNEL_BACKUP_RESTORE_COMPLETE) {
@@ -41,7 +42,6 @@ class BackupNotifier(private val context: Context) {
             setContentTitle(context.getString(R.string.creating_backup))
 
             setProgress(0, 0, true)
-            setOnlyAlertOnce(true)
         }
 
         builder.show(Notifications.ID_BACKUP_PROGRESS)
@@ -60,7 +60,7 @@ class BackupNotifier(private val context: Context) {
         }
     }
 
-    fun showBackupComplete(unifile: UniFile, isLegacyFormat: Boolean) {
+    fun showBackupComplete(unifile: UniFile) {
         context.notificationManager.cancel(Notifications.ID_BACKUP_PROGRESS)
 
         with(completeNotificationBuilder) {
@@ -73,7 +73,7 @@ class BackupNotifier(private val context: Context) {
             addAction(
                 R.drawable.ic_share_24dp,
                 context.getString(R.string.action_share),
-                NotificationReceiver.shareBackupPendingBroadcast(context, unifile.uri, isLegacyFormat, Notifications.ID_BACKUP_COMPLETE)
+                NotificationReceiver.shareBackupPendingBroadcast(context, unifile.uri, Notifications.ID_BACKUP_COMPLETE)
             )
 
             show(Notifications.ID_BACKUP_COMPLETE)
@@ -141,7 +141,7 @@ class BackupNotifier(private val context: Context) {
 
                 addAction(
                     R.drawable.ic_folder_24dp,
-                    context.getString(R.string.action_open_log),
+                    context.getString(R.string.action_show_errors),
                     NotificationReceiver.openErrorLogPendingActivity(context, uri)
                 )
             }

@@ -35,6 +35,8 @@ class Anilist(private val context: Context, id: Int) : TrackService(id) {
 
     private val api by lazy { AnilistApi(client, interceptor) }
 
+    override val supportsReadingDates: Boolean = true
+
     private val scorePreference = preferences.anilistScoreType()
 
     init {
@@ -128,7 +130,7 @@ class Anilist(private val context: Context, id: Int) : TrackService(id) {
         }
     }
 
-    override suspend fun add(track: Track): Track {
+    private suspend fun add(track: Track): Track {
         return api.addLibManga(track)
     }
 

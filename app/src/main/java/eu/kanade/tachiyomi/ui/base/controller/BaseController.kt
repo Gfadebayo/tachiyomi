@@ -10,16 +10,15 @@ import androidx.viewbinding.ViewBinding
 import com.bluelinelabs.conductor.Controller
 import com.bluelinelabs.conductor.ControllerChangeHandler
 import com.bluelinelabs.conductor.ControllerChangeType
-import com.bluelinelabs.conductor.RestoreViewOnCreateController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import timber.log.Timber
 
-abstract class BaseController<VB : ViewBinding>(bundle: Bundle? = null) :
-    RestoreViewOnCreateController(bundle) {
+abstract class BaseController<VB : ViewBinding>(bundle: Bundle? = null) : Controller(bundle) {
 
-    lateinit var binding: VB
+    protected lateinit var binding: VB
+        private set
 
     lateinit var viewScope: CoroutineScope
 
@@ -51,11 +50,12 @@ abstract class BaseController<VB : ViewBinding>(bundle: Bundle? = null) :
         )
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup, savedViewState: Bundle?): View {
-        return inflateView(inflater, container)
-    }
+    abstract fun createBinding(inflater: LayoutInflater): VB
 
-    abstract fun inflateView(inflater: LayoutInflater, container: ViewGroup): View
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup, savedViewState: Bundle?): View {
+        binding = createBinding(inflater)
+        return binding.root
+    }
 
     open fun onViewCreated(view: View) {}
 
@@ -121,7 +121,7 @@ abstract class BaseController<VB : ViewBinding>(bundle: Bundle? = null) :
      * [expandActionViewFromInteraction] should be set to true in [onOptionsItemSelected] when the expandable item is selected
      * This method should be called as part of [MenuItem.OnActionExpandListener.onMenuItemActionExpand]
      */
-    fun invalidateMenuOnExpand(): Boolean {
+    open fun invalidateMenuOnExpand(): Boolean {
         return if (expandActionViewFromInteraction) {
             activity?.invalidateOptionsMenu()
             false

@@ -17,7 +17,8 @@ object ChapterSettingsHelper {
     fun setGlobalSettings(manga: Manga?) {
         manga?.let {
             prefs.setChapterSettingsDefault(it)
-            db.updateFlags(it).executeAsBlocking()
+            db.updateChapterFlags(it).executeAsBlocking()
+            db.updateViewerFlags(it).executeAsBlocking()
         }
     }
 
@@ -34,7 +35,8 @@ object ChapterSettingsHelper {
             setChapterOrder(prefs.sortChapterByAscendingOrDescending())
         }
 
-        db.updateFlags(manga).executeAsBlocking()
+        db.updateChapterFlags(manga).executeAsBlocking()
+        db.updateViewerFlags(manga).executeAsBlocking()
     }
 
     /**
@@ -42,19 +44,22 @@ object ChapterSettingsHelper {
      */
     fun updateAllMangasWithGlobalDefaults() {
         launchIO {
-            val updatedMangas = db.getMangas().executeAsBlocking().map { manga ->
-                with(manga) {
-                    readFilter = prefs.filterChapterByRead()
-                    downloadedFilter = prefs.filterChapterByDownloaded()
-                    bookmarkedFilter = prefs.filterChapterByBookmarked()
-                    sorting = prefs.sortChapterBySourceOrNumber()
-                    displayMode = prefs.displayChapterByNameOrNumber()
-                    setChapterOrder(prefs.sortChapterByAscendingOrDescending())
+            val updatedMangas = db.getFavoriteMangas(sortByTitle = false)
+                .executeAsBlocking()
+                .map { manga ->
+                    with(manga) {
+                        readFilter = prefs.filterChapterByRead()
+                        downloadedFilter = prefs.filterChapterByDownloaded()
+                        bookmarkedFilter = prefs.filterChapterByBookmarked()
+                        sorting = prefs.sortChapterBySourceOrNumber()
+                        displayMode = prefs.displayChapterByNameOrNumber()
+                        setChapterOrder(prefs.sortChapterByAscendingOrDescending())
+                    }
+                    manga
                 }
-                manga
-            }
 
-            db.updateFlags(updatedMangas).executeAsBlocking()
+            db.updateChapterFlags(updatedMangas).executeAsBlocking()
+            db.updateViewerFlags(updatedMangas).executeAsBlocking()
         }
     }
 }

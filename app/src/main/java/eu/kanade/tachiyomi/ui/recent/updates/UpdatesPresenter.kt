@@ -2,6 +2,7 @@ package eu.kanade.tachiyomi.ui.recent.updates
 
 import android.os.Bundle
 import eu.kanade.tachiyomi.data.database.DatabaseHelper
+import eu.kanade.tachiyomi.data.database.models.Chapter
 import eu.kanade.tachiyomi.data.database.models.MangaChapter
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.data.download.model.Download
@@ -41,7 +42,7 @@ class UpdatesPresenter(
 
         downloadManager.queue.getStatusObservable()
             .observeOn(Schedulers.io())
-            .onBackpressureLatest()
+            .onBackpressureBuffer()
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeLatestCache(
                 { view, it ->
@@ -55,7 +56,7 @@ class UpdatesPresenter(
 
         downloadManager.queue.getProgressObservable()
             .observeOn(Schedulers.io())
-            .onBackpressureLatest()
+            .onBackpressureBuffer()
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeLatestCache(UpdatesController::onChapterDownloadUpdate) { _, error ->
                 Timber.e(error)
@@ -132,6 +133,10 @@ class UpdatesPresenter(
                 chapter.download = download
             }
         }
+    }
+
+    fun startDownloadingNow(chapter: Chapter) {
+        downloadManager.startDownloadNow(chapter)
     }
 
     /**

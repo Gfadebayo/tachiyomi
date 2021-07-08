@@ -116,8 +116,19 @@ abstract class PagerViewer(val activity: ReaderActivity) : BaseViewer {
             false
         }
 
+        config.dualPageSplitChangedListener = { enabled ->
+            if (!enabled) {
+                cleanupPageSplit()
+            }
+        }
+
         config.imagePropertyChangedListener = {
             refreshAdapter()
+        }
+
+        config.navigationModeChangedListener = {
+            val showOnStart = config.navigationOverlayOnStart || config.forceNavigationOverlay
+            activity.binding.navigationOverlay.setNavigation(config.navigator, showOnStart)
         }
     }
 
@@ -180,6 +191,11 @@ abstract class PagerViewer(val activity: ReaderActivity) : BaseViewer {
         val pages = page.chapter.pages ?: return
         Timber.d("onReaderPageSelected: ${page.number}/${pages.size}")
         activity.onPageSelected(page)
+
+        // Skip preload on inserts it causes unwanted page jumping
+        if (page is InsertPage) {
+            return
+        }
 
         // Preload next chapter once we're within the last 5 pages of the current chapter
         val inPreloadRange = pages.size - page.number < 5
@@ -374,6 +390,13 @@ abstract class PagerViewer(val activity: ReaderActivity) : BaseViewer {
     }
 
     fun onPageSplit(currentPage: ReaderPage, newPage: InsertPage) {
-        adapter.onPageSplit(currentPage, newPage, this::class.java)
+        activity.runOnUiThread {
+            // Need to insert on UI thread else images will go blank
+            adapter.onPageSplit(currentPage, newPage)
+        }
+    }
+
+    private fun cleanupPageSplit() {
+        adapter.cleanupPageSplit()
     }
 }
